@@ -2,6 +2,11 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTheme } from "@/components/theme/theme-context";
+import { THEME_TOKENS } from "@/lib/theme-tokens";
+
+/* ---------------------------------------------------------------------- */
+/* Red Team — scattered live terminal panes                               */
+/* ---------------------------------------------------------------------- */
 
 // Purely decorative flavor text — fictional pseudo-terminal output, not
 // real exploit code or functioning tooling.
@@ -57,14 +62,13 @@ const PANE_TEMPLATES: PaneTemplate[] = [
   { width: 210, fontSize: 10, opacity: 0.28, maxLines: 4, typingMs: 42, holdMs: 1900, poolStart: 3 },
 ];
 
-const MARGIN = 28; // minimum gap enforced between any two panes
-const EDGE_PADDING = 16; // keep panes off the very edge of the viewport
+const MARGIN = 28;
+const EDGE_PADDING = 16;
 const PLACEMENT_ATTEMPTS = 60;
 
 type PlacedPane = PaneTemplate & { x: number; y: number; height: number };
 
 function estimateHeight(t: PaneTemplate) {
-  // Visible committed lines plus the one currently being typed.
   return (t.maxLines + 1) * t.fontSize * 1.7;
 }
 
@@ -86,7 +90,7 @@ function rectsOverlap(
   );
 }
 
-function generateLayout(
+function generatePaneLayout(
   viewportW: number,
   viewportH: number,
   templates: PaneTemplate[],
@@ -111,8 +115,7 @@ function generateLayout(
         rectsOverlap(candidateX, candidateY, template.width, height, p.x, p.y, p.width, p.height),
       );
 
-      if (!overlaps) break; // fits — stop searching
-      // otherwise keep the last attempt as a best-effort fallback and try again
+      if (!overlaps) break;
     }
 
     placed.push({ ...template, x, y, height });
@@ -205,6 +208,161 @@ function TerminalPane({ pane }: { pane: PlacedPane }) {
   );
 }
 
+function RedTeamLayer({ viewport }: { viewport: { w: number; h: number } }) {
+  const templates = viewport.w < 640 ? PANE_TEMPLATES.slice(0, 3) : PANE_TEMPLATES;
+  const layout = useMemo(
+    () => generatePaneLayout(viewport.w, viewport.h, templates),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [viewport.w, viewport.h, templates.length],
+  );
+
+  return (
+    <>
+      {layout.map((pane, i) => (
+        <TerminalPane key={i} pane={pane} />
+      ))}
+    </>
+  );
+}
+
+/* ---------------------------------------------------------------------- */
+/* Blue Team — corner radar sweeps                                        */
+/* ---------------------------------------------------------------------- */
+
+function hexToRgba(hex: string, alpha: number) {
+  const clean = hex.replace("#", "");
+  const r = parseInt(clean.substring(0, 2), 16);
+  const g = parseInt(clean.substring(2, 4), 16);
+  const b = parseInt(clean.substring(4, 6), 16);
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
+type RadarConfig = {
+  originXPercent: number;
+  originYPercent: number;
+  sweepDurationSec: number;
+  blipCount: number;
+  ringCount: number;
+};
+
+const RADAR_CONFIGS: RadarConfig[] = [
+  { originXPercent: 6, originYPercent: 8, sweepDurationSec: 14, blipCount: 5, ringCount: 3 },
+  { originXPercent: 94, originYPercent: 90, sweepDurationSec: 18, blipCount: 5, ringCount: 3 },
+];
+
+type Blip = { angleDeg: number; radiusFrac: number; size: number; delaySec: number };
+
+function generateBlips(count: number, sweepDurationSec: number): Blip[] {
+  return Array.from({ length: count }, () => {
+    const angleDeg = Math.random() * 360;
+    return {
+      angleDeg,
+      radiusFrac: 0.25 + Math.random() * 0.65,
+      size: 3 + Math.random() * 3,
+      delaySec: (angleDeg / 360) * sweepDurationSec + Math.random() * 0.15,
+    };
+  });
+}
+
+function Radar({
+  config,
+  radius,
+  accentHex,
+}: {
+  config: RadarConfig;
+  radius: number;
+  accentHex: string;
+}) {
+  const blips = useMemo(
+    () => generateBlips(config.blipCount, config.sweepDurationSec),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [config.blipCount, config.sweepDurationSec],
+  );
+
+  const rings = Array.from({ length: config.ringCount }, (_, i) => {
+    const scale = (i + 1) / config.ringCount;
+    return (
+      <div
+        key={i}
+        className="absolute rounded-full"
+        style={{
+          left: radius,
+          top: radius,
+          width: radius * 2 * scale,
+          height: radius * 2 * scale,
+          transform: "translate(-50%, -50%)",
+          border: `1px solid ${hexToRgba(accentHex, 0.12)}`,
+        }}
+      />
+    );
+  });
+
+  return (
+    <div
+      className="absolute"
+      style={{
+        left: `${config.originXPercent}%`,
+        top: `${config.originYPercent}%`,
+        width: radius * 2,
+        height: radius * 2,
+        transform: "translate(-50%, -50%)",
+      }}
+    >
+      {rings}
+
+      {/* Rotating sweep trail */}
+      <div
+        className="absolute inset-0 rounded-full"
+        style={{
+          background: `conic-gradient(from 0deg, ${hexToRgba(accentHex, 0.3)} 0deg, ${hexToRgba(accentHex, 0)} 46deg, ${hexToRgba(accentHex, 0)} 360deg)`,
+          animation: `radar-rotate ${config.sweepDurationSec}s linear infinite`,
+        }}
+      />
+
+      {/* Contact blips — flash timed to when the sweep passes their angle */}
+      {blips.map((blip, i) => {
+        const angleRad = (blip.angleDeg * Math.PI) / 180;
+        const left = radius + Math.cos(angleRad) * blip.radiusFrac * radius;
+        const top = radius + Math.sin(angleRad) * blip.radiusFrac * radius;
+        return (
+          <div
+            key={i}
+            className="absolute rounded-full"
+            style={{
+              left,
+              top,
+              width: blip.size,
+              height: blip.size,
+              opacity: 0,
+              background: accentHex,
+              transform: "translate(-50%, -50%)",
+              animation: `radar-blip ${config.sweepDurationSec}s ease-out infinite`,
+              animationDelay: `${blip.delaySec}s`,
+            }}
+          />
+        );
+      })}
+    </div>
+  );
+}
+
+function BlueTeamLayer({ viewport }: { viewport: { w: number; h: number } }) {
+  const radius = Math.max(viewport.w, viewport.h) * 0.38;
+  const accentHex = THEME_TOKENS.light.accent;
+
+  return (
+    <>
+      {RADAR_CONFIGS.map((config, i) => (
+        <Radar key={i} config={config} radius={radius} accentHex={accentHex} />
+      ))}
+    </>
+  );
+}
+
+/* ---------------------------------------------------------------------- */
+/* Shared shell                                                           */
+/* ---------------------------------------------------------------------- */
+
 export function GlobalBackground() {
   const { theme } = useTheme();
   const [viewport, setViewport] = useState<{ w: number; h: number } | null>(null);
@@ -227,25 +385,15 @@ export function GlobalBackground() {
     };
   }, []);
 
-  const templates = useMemo(() => {
-    // Fewer panes on small screens so it doesn't feel cramped.
-    if (viewport && viewport.w < 640) return PANE_TEMPLATES.slice(0, 3);
-    return PANE_TEMPLATES;
-  }, [viewport]);
-
-  const layout = useMemo(() => {
-    if (!viewport) return [];
-    return generateLayout(viewport.w, viewport.h, templates);
-  }, [viewport, templates]);
-
-  // Blue Team's background gets built next — for now, Red Team only.
-  if (theme !== "dark" || layout.length === 0) return null;
+  if (!viewport) return null;
 
   return (
     <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
-      {layout.map((pane, i) => (
-        <TerminalPane key={i} pane={pane} />
-      ))}
+      {theme === "dark" ? (
+        <RedTeamLayer viewport={viewport} />
+      ) : (
+        <BlueTeamLayer viewport={viewport} />
+      )}
     </div>
   );
 }
