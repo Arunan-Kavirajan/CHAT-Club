@@ -9,8 +9,9 @@ import {
   query,
   orderBy,
 } from "firebase/firestore";
-import { db } from "@/lib/firebase";
 import type { AdminMember, AdminTeamCategory } from "@/lib/team-types";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { db, storage } from "@/lib/firebase";
 
 const CATEGORIES_COLLECTION = "teamCategories";
 const MEMBERS_COLLECTION = "teamMembers";
@@ -33,6 +34,13 @@ export function subscribeCategories(
   });
 }
 
+export async function uploadMemberPhoto(memberId: string, file: File): Promise<string> {
+  const ext = file.name.split(".").pop() || "jpg";
+  const photoRef = ref(storage, `team-photos/${memberId}.${ext}`);
+  await uploadBytes(photoRef, file);
+  return getDownloadURL(photoRef);
+}
+
 export function subscribeMembers(callback: (members: AdminMember[]) => void) {
   const q = query(collection(db, MEMBERS_COLLECTION), orderBy("order", "asc"));
   return onSnapshot(q, (snapshot) => {
@@ -47,6 +55,7 @@ export function subscribeMembers(callback: (members: AdminMember[]) => void) {
           deptClass: data.deptClass as string,
           position: data.position as string,
           linkedin: data.linkedin as string,
+          photoUrl: (data.photoUrl ?? null) as string | null,
         };
       }),
     );
@@ -75,8 +84,11 @@ export async function deleteCategory(id: string) {
   await deleteDoc(doc(db, CATEGORIES_COLLECTION, id));
 }
 
-export async function createMember(member: Omit<AdminMember, "id">, order: number) {
-  const id = crypto.randomUUID();
+export async function createMemberWithId(
+  id: string,
+  member: Omit<AdminMember, "id">,
+  order: number,
+) {
   await setDoc(doc(db, MEMBERS_COLLECTION, id), { ...member, order });
 }
 

@@ -14,7 +14,8 @@ export type AdminMember = {
   name: string;
   categoryId: string;
   teamId: string | null;
-  deptClass: string; // e.g. "IT-2A"
+  deptClass: string;
   position: string;
   linkedin: string;
+  photoUrl: string | null;
 };

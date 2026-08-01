@@ -2,13 +2,14 @@
 
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import type { AdminMember, AdminTeamCategory } from "@/lib/team-types";
+import { uploadMemberPhoto } from "@/lib/firebase-team";
 
 type Props = {
   open: boolean;
   categories: AdminTeamCategory[];
   initialData?: AdminMember | null;
   onClose: () => void;
-  onSave: (member: Omit<AdminMember, "id"> & { id?: string }) => void;
+  onSave: (member: AdminMember) => void;
 };
 
 const EMPTY_FORM = {
@@ -20,8 +21,22 @@ const EMPTY_FORM = {
   linkedin: "",
 };
 
+function initials(name: string) {
+  return name
+    .split(" ")
+    .map((p) => p[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
+}
+
 export function MemberDialog({ open, categories, initialData, onClose, onSave }: Props) {
   const [form, setForm] = useState(EMPTY_FORM);
+  const [existingPhotoUrl, setExistingPhotoUrl] = useState<string | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
 
   useEffect(() => {
     if (initialData) {
@@ -33,10 +48,24 @@ export function MemberDialog({ open, categories, initialData, onClose, onSave }:
         position: initialData.position,
         linkedin: initialData.linkedin,
       });
+      setExistingPhotoUrl(initialData.photoUrl);
     } else {
       setForm(EMPTY_FORM);
+      setExistingPhotoUrl(null);
     }
+    setSelectedFile(null);
+    setUploadError(null);
   }, [initialData, open]);
+
+  useEffect(() => {
+    if (!selectedFile) {
+      setPreviewUrl(null);
+      return;
+    }
+    const url = URL.createObjectURL(selectedFile);
+    setPreviewUrl(url);
+    return () => URL.revokeObjectURL(url);
+  }, [selectedFile]);
 
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
@@ -49,27 +78,61 @@ export function MemberDialog({ open, categories, initialData, onClose, onSave }:
   if (!open) return null;
 
   const selectedCategory = categories.find((c) => c.id === form.categoryId);
+  const displaySrc = previewUrl || existingPhotoUrl;
 
-  function handleSubmit(e: FormEvent) {
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      setUploadError("Please choose an image file.");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      setUploadError("Image must be under 5MB.");
+      return;
+    }
+    setUploadError(null);
+    setSelectedFile(file);
+  }
+
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     if (!form.name.trim() || !form.categoryId) return;
 
-    let linkedin = form.linkedin.trim();
-    if (linkedin && !/^https?:\/\//i.test(linkedin)) {
-      linkedin = `https://${linkedin}`;
-    }
+    setUploading(true);
+    setUploadError(null);
 
-    onSave({
-      id: initialData?.id,
-      name: form.name.trim(),
-      categoryId: form.categoryId,
-      teamId: form.teamId || null,
-      deptClass: form.deptClass.trim(),
-      position: form.position.trim(),
-      linkedin,
-    });
-    onClose();
+    try {
+      const memberId = initialData?.id ?? crypto.randomUUID();
+      let photoUrl = existingPhotoUrl;
+
+      if (selectedFile) {
+        photoUrl = await uploadMemberPhoto(memberId, selectedFile);
+      }
+
+      let linkedin = form.linkedin.trim();
+      if (linkedin && !/^https?:\/\//i.test(linkedin)) {
+        linkedin = `https://${linkedin}`;
+      }
+
+      onSave({
+        id: memberId,
+        name: form.name.trim(),
+        categoryId: form.categoryId,
+        teamId: form.teamId || null,
+        deptClass: form.deptClass.trim(),
+        position: form.position.trim(),
+        linkedin,
+        photoUrl: photoUrl || null,
+      });
+      onClose();
+    } catch {
+      setUploadError("Upload failed. Try again.");
+    } finally {
+      setUploading(false);
+    }
   }
+
   return (
     <div
       className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 px-4"
@@ -77,7 +140,7 @@ export function MemberDialog({ open, categories, initialData, onClose, onSave }:
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-md rounded-lg p-6 bg-[var(--admin-bg)] border border-[var(--admin-accent-soft)]"
+        className="w-full max-w-md rounded-lg p-6 bg-[var(--admin-bg)] border border-[var(--admin-accent-soft)] max-h-[90vh] overflow-y-auto"
         style={{ color: "var(--admin-foreground)" }}
       >
         <h2 className="text-lg font-semibold mb-5">
@@ -85,6 +148,27 @@ export function MemberDialog({ open, categories, initialData, onClose, onSave }:
         </h2>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          <Field label="Photo">
+            <div className="flex items-center gap-3">
+              <div className="w-14 h-14 rounded-full overflow-hidden bg-[var(--admin-muted)] flex items-center justify-center shrink-0">
+                {displaySrc ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={displaySrc} alt="" className="w-full h-full object-cover" />
+                ) : (
+                  <span className="font-mono text-xs text-[var(--admin-foreground)]/40">
+                    {form.name ? initials(form.name) : "?"}
+                  </span>
+                )}
+              </div>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
+                className="text-xs text-[var(--admin-foreground)]/60 file:font-mono file:text-xs file:mr-3 file:px-3 file:py-1.5 file:rounded file:border-0 file:bg-[var(--admin-accent)]/20 file:text-[var(--admin-accent)]"
+              />
+            </div>
+          </Field>
+
           <Field label="Name">
             <input
               value={form.name}
@@ -154,6 +238,10 @@ export function MemberDialog({ open, categories, initialData, onClose, onSave }:
             />
           </Field>
 
+          {uploadError && (
+            <p className="font-mono text-xs text-[var(--admin-accent)]">{uploadError}</p>
+          )}
+
           <div className="flex justify-end gap-3 mt-2">
             <button
               type="button"
@@ -164,9 +252,10 @@ export function MemberDialog({ open, categories, initialData, onClose, onSave }:
             </button>
             <button
               type="submit"
-              className="font-mono text-xs px-4 py-2 rounded-md bg-[var(--admin-accent)] text-[var(--admin-bg)] hover:opacity-90 transition-opacity"
+              disabled={uploading}
+              className="font-mono text-xs px-4 py-2 rounded-md bg-[var(--admin-accent)] text-[var(--admin-bg)] hover:opacity-90 transition-opacity disabled:opacity-50"
             >
-              {initialData ? "Save changes" : "Add member"}
+              {uploading ? "Saving..." : initialData ? "Save changes" : "Add member"}
             </button>
           </div>
         </form>

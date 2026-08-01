@@ -9,7 +9,7 @@ import {
   subscribeMembers,
   syncCategories,
   deleteCategory as deleteCategoryDoc,
-  createMember,
+  createMemberWithId,
   updateMemberDoc,
   deleteMemberDoc,
 } from "@/lib/firebase-team";
@@ -39,15 +39,15 @@ export default function AdminTeamPage() {
     deleteCategoryDoc(id);
   }
 
-  function handleSaveMember(data: Omit<AdminMember, "id"> & { id?: string }) {
+  function handleSaveMember(data: AdminMember) {
     const { id, ...rest } = data;
-    if (id) {
+    if (editingMember) {
       updateMemberDoc(id, rest);
     } else {
-      createMember(rest, members.length);
+      createMemberWithId(id, rest, members.length);
     }
   }
-  
+
   function handleDeleteMember(id: string) {
     deleteMemberDoc(id);
   }

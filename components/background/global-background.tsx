@@ -246,20 +246,29 @@ type RadarConfig = {
 };
 
 const RADAR_CONFIGS: RadarConfig[] = [
-  { originXPercent: 6, originYPercent: 8, sweepDurationSec: 14, blipCount: 5, ringCount: 3 },
-  { originXPercent: 94, originYPercent: 90, sweepDurationSec: 18, blipCount: 5, ringCount: 3 },
+  { originXPercent: 6, originYPercent: 8, sweepDurationSec: 14, blipCount: 9, ringCount: 3 },
+  { originXPercent: 94, originYPercent: 90, sweepDurationSec: 18, blipCount: 9, ringCount: 3 },
 ];
 
-type Blip = { angleDeg: number; radiusFrac: number; size: number; delaySec: number };
+type Blip = {
+  angleDeg: number;
+  radiusFrac: number;
+  size: number;
+  pulseDurationSec: number;
+  pulseDelaySec: number;
+};
 
-function generateBlips(count: number, sweepDurationSec: number): Blip[] {
+function generateBlips(count: number): Blip[] {
   return Array.from({ length: count }, () => {
-    const angleDeg = Math.random() * 360;
+    const pulseDurationSec = 2.2 + Math.random() * 1.8; // 2.2-4s — independent of the sweep
     return {
-      angleDeg,
+      angleDeg: Math.random() * 360,
       radiusFrac: 0.25 + Math.random() * 0.65,
-      size: 3 + Math.random() * 3,
-      delaySec: (angleDeg / 360) * sweepDurationSec + Math.random() * 0.15,
+      size: 4 + Math.random() * 4,
+      pulseDurationSec,
+      // Negative delay starts each blip already partway into its cycle,
+      // so all blips on a radar don't flash in unison.
+      pulseDelaySec: -(Math.random() * pulseDurationSec),
     };
   });
 }
@@ -274,9 +283,9 @@ function Radar({
   accentHex: string;
 }) {
   const blips = useMemo(
-    () => generateBlips(config.blipCount, config.sweepDurationSec),
+    () => generateBlips(config.blipCount),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [config.blipCount, config.sweepDurationSec],
+    [config.blipCount],
   );
 
   const rings = Array.from({ length: config.ringCount }, (_, i) => {
@@ -336,8 +345,8 @@ function Radar({
               opacity: 0,
               background: accentHex,
               transform: "translate(-50%, -50%)",
-              animation: `radar-blip ${config.sweepDurationSec}s ease-out infinite`,
-              animationDelay: `${blip.delaySec}s`,
+              animation: `radar-blip ${blip.pulseDurationSec}s ease-out infinite`,
+              animationDelay: `${blip.pulseDelaySec}s`,
             }}
           />
         );
