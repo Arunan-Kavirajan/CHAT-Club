@@ -89,8 +89,8 @@ export function MemberDialog({ open, categories, initialData, onClose, onSave }:
     try {
       const url = await uploadImageToGithub(file);
       setForm((prev) => ({ ...prev, photoUrl: url }));
-    } catch {
-      setUploadError("Upload failed. Try again.");
+    } catch (err) {
+      setUploadError(err instanceof Error ? err.message : "Upload failed. Try again.");
       setPreviewUrl(null);
     } finally {
       setUploading(false);
