@@ -2,6 +2,7 @@
 
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import type { AdminMember, AdminTeamCategory } from "@/lib/team-types";
+import { uploadImageToGithub } from "@/lib/github-upload";
 
 type Props = {
   open: boolean;
@@ -32,6 +33,9 @@ function initials(name: string) {
 
 export function MemberDialog({ open, categories, initialData, onClose, onSave }: Props) {
   const [form, setForm] = useState(EMPTY_FORM);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
 
   useEffect(() => {
     if (initialData) {
@@ -47,6 +51,8 @@ export function MemberDialog({ open, categories, initialData, onClose, onSave }:
     } else {
       setForm(EMPTY_FORM);
     }
+    setPreviewUrl(null);
+    setUploadError(null);
   }, [initialData, open]);
 
   useEffect(() => {
@@ -60,19 +66,44 @@ export function MemberDialog({ open, categories, initialData, onClose, onSave }:
   if (!open) return null;
 
   const selectedCategory = categories.find((c) => c.id === form.categoryId);
+  const displaySrc = previewUrl || form.photoUrl;
+
+  async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      setUploadError("Please choose an image file.");
+      return;
+    }
+    if (file.size > 4 * 1024 * 1024) {
+      setUploadError("Image must be under 4MB.");
+      return;
+    }
+
+    setUploadError(null);
+    const localPreview = URL.createObjectURL(file);
+    setPreviewUrl(localPreview);
+    setUploading(true);
+
+    try {
+      const url = await uploadImageToGithub(file);
+      setForm((prev) => ({ ...prev, photoUrl: url }));
+    } catch {
+      setUploadError("Upload failed. Try again.");
+      setPreviewUrl(null);
+    } finally {
+      setUploading(false);
+    }
+  }
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    if (!form.name.trim() || !form.categoryId) return;
+    if (!form.name.trim() || !form.categoryId || uploading) return;
 
     let linkedin = form.linkedin.trim();
     if (linkedin && !/^https?:\/\//i.test(linkedin)) {
       linkedin = `https://${linkedin}`;
-    }
-
-    let photoUrl = form.photoUrl.trim();
-    if (photoUrl && !/^https?:\/\//i.test(photoUrl)) {
-      photoUrl = `https://${photoUrl}`;
     }
 
     onSave({
@@ -83,7 +114,7 @@ export function MemberDialog({ open, categories, initialData, onClose, onSave }:
       deptClass: form.deptClass.trim(),
       position: form.position.trim(),
       linkedin,
-      photoUrl: photoUrl || null,
+      photoUrl: form.photoUrl || null,
     });
     onClose();
   }
@@ -106,22 +137,29 @@ export function MemberDialog({ open, categories, initialData, onClose, onSave }:
           <Field label="Photo">
             <div className="flex items-center gap-3">
               <div className="w-14 h-14 rounded-full overflow-hidden bg-[var(--admin-muted)] flex items-center justify-center shrink-0">
-                {form.photoUrl ? (
+                {displaySrc ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={form.photoUrl} alt="" className="w-full h-full object-cover" />
+                  <img src={displaySrc} alt="" className="w-full h-full object-cover" />
                 ) : (
                   <span className="font-mono text-xs text-[var(--admin-foreground)]/40">
                     {form.name ? initials(form.name) : "?"}
                   </span>
                 )}
               </div>
-              <input
-                type="text"
-                value={form.photoUrl}
-                onChange={(e) => setForm({ ...form, photoUrl: e.target.value })}
-                className="admin-input flex-1"
-                placeholder="Paste an image URL (optional)"
-              />
+              <div className="flex flex-col gap-1">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                  disabled={uploading}
+                  className="text-xs text-[var(--admin-foreground)]/60 file:font-mono file:text-xs file:mr-3 file:px-3 file:py-1.5 file:rounded file:border-0 file:bg-[var(--admin-accent)]/20 file:text-[var(--admin-accent)] disabled:opacity-50"
+                />
+                {uploading && (
+                  <span className="font-mono text-xs text-[var(--admin-accent)]">
+                    Uploading...
+                  </span>
+                )}
+              </div>
             </div>
           </Field>
 
@@ -194,6 +232,10 @@ export function MemberDialog({ open, categories, initialData, onClose, onSave }:
             />
           </Field>
 
+          {uploadError && (
+            <p className="font-mono text-xs text-[var(--admin-accent)]">{uploadError}</p>
+          )}
+
           <div className="flex justify-end gap-3 mt-2">
             <button
               type="button"
@@ -204,9 +246,10 @@ export function MemberDialog({ open, categories, initialData, onClose, onSave }:
             </button>
             <button
               type="submit"
-              className="font-mono text-xs px-4 py-2 rounded-md bg-[var(--admin-accent)] text-[var(--admin-bg)] hover:opacity-90 transition-opacity"
+              disabled={uploading}
+              className="font-mono text-xs px-4 py-2 rounded-md bg-[var(--admin-accent)] text-[var(--admin-bg)] hover:opacity-90 transition-opacity disabled:opacity-50"
             >
-              {initialData ? "Save changes" : "Add member"}
+              {uploading ? "Uploading..." : initialData ? "Save changes" : "Add member"}
             </button>
           </div>
         </form>
