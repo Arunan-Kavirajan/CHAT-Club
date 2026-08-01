@@ -8,15 +8,23 @@ export default function AdminDashboardPage() {
       </p>
       <h1 className="text-3xl font-semibold tracking-tight">Dashboard</h1>
       <p className="mt-4 text-[var(--admin-foreground)]/60">
-        Events and Projects management land here next.
+        Projects management lands here next.
       </p>
 
-      <Link
-        href="/admin/team"
-        className="mt-8 inline-block font-mono text-sm px-4 py-2 rounded-md bg-[var(--admin-accent)] text-[var(--admin-bg)] hover:opacity-90 transition-opacity"
-      >
-        Manage Team →
-      </Link>
+      <div className="mt-8 flex gap-3">
+        <Link
+          href="/admin/team"
+          className="font-mono text-sm px-4 py-2 rounded-md bg-[var(--admin-accent)] text-[var(--admin-bg)] hover:opacity-90 transition-opacity"
+        >
+          Manage Team →
+        </Link>
+        <Link
+          href="/admin/events"
+          className="font-mono text-sm px-4 py-2 rounded-md bg-[var(--admin-accent)] text-[var(--admin-bg)] hover:opacity-90 transition-opacity"
+        >
+          Manage Events →
+        </Link>
+      </div>
     </section>
   );
 }

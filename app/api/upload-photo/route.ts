@@ -5,6 +5,17 @@ const GITHUB_REPO = process.env.GITHUB_REPO;
 const GITHUB_BRANCH = process.env.GITHUB_BRANCH || "main";
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 
+// Strips anything outside [a-zA-Z0-9-_] per path segment — a ".." segment
+// becomes empty and gets dropped, which neutralizes path traversal.
+function sanitizeFolder(folder: string): string {
+  const cleaned = folder
+    .split("/")
+    .map((part) => part.replace(/[^a-zA-Z0-9-_]/g, ""))
+    .filter(Boolean)
+    .join("/");
+  return cleaned || "uploads";
+}
+
 export async function POST(request: Request) {
   if (!GITHUB_OWNER || !GITHUB_REPO || !GITHUB_TOKEN) {
     return NextResponse.json(
@@ -15,6 +26,8 @@ export async function POST(request: Request) {
 
   const formData = await request.formData();
   const file = formData.get("file") as File | null;
+  const rawFolder = (formData.get("folder") as string | null) || "uploads";
+  const folder = sanitizeFolder(rawFolder);
 
   if (!file) {
     return NextResponse.json({ error: "No file provided." }, { status: 400 });
@@ -32,7 +45,7 @@ export async function POST(request: Request) {
   const base64Content = Buffer.from(arrayBuffer).toString("base64");
 
   const ext = file.name.split(".").pop() || "jpg";
-  const path = `uploads/${crypto.randomUUID()}.${ext}`;
+  const path = `${folder}/${crypto.randomUUID()}.${ext}`;
 
   const githubResponse = await fetch(
     `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${path}`,

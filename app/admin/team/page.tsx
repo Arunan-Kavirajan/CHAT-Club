@@ -13,6 +13,7 @@ import {
   updateMemberDoc,
   deleteMemberDoc,
 } from "@/lib/firebase-team";
+import { deleteImageFromGithub } from "@/lib/github-upload";
 
 export default function AdminTeamPage() {
   const [categories, setCategories] = useState<AdminTeamCategory[]>([]);
@@ -49,7 +50,11 @@ export default function AdminTeamPage() {
   }
 
   function handleDeleteMember(id: string) {
+    const member = members.find((m) => m.id === id);
     deleteMemberDoc(id);
+    if (member?.photoUrl) {
+      deleteImageFromGithub(member.photoUrl); // best-effort, not blocking
+    }
   }
 
   function categoryName(id: string) {
