@@ -1,37 +1,33 @@
-import type { TeamMember } from "@/lib/data/team";
+import { FaLinkedin } from "react-icons/fa";
+import type { AdminMember } from "@/lib/team-types";
 
-function initials(name: string) {
-  return name
-    .split(" ")
-    .map((part) => part[0])
-    .slice(0, 2)
-    .join("")
-    .toUpperCase();
-}
-
-export function MemberCard({ member }: { member: TeamMember }) {
+export function MemberCard({ member }: { member: AdminMember }) {
   return (
-    <div className="group">
-      <div className="aspect-square rounded-lg bg-muted overflow-hidden relative">
-        {member.photoUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={member.photoUrl}
-            alt={member.name}
-            className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500 group-hover:scale-105"
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center font-mono text-2xl text-foreground/30 group-hover:text-accent transition-colors duration-500">
-            {initials(member.name)}
-          </div>
+    <div className="rounded-lg border border-foreground/10 p-4">
+      <div className="flex items-start justify-between gap-2">
+        <div>
+          <p className="font-medium">{member.name}</p>
+          {member.position && (
+            <p className="text-sm text-foreground/60">{member.position}</p>
+          )}
+        </div>
+        {member.linkedin && (
+          <a
+            href={member.linkedin}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-foreground/40 hover:text-accent transition-colors shrink-0"
+            aria-label={`${member.name} on LinkedIn`}
+          >
+            <FaLinkedin size={18} />
+          </a>
         )}
       </div>
-
-      <p className="mt-3 font-medium">{member.name}</p>
-      <p className="text-sm text-foreground/60">{member.role}</p>
-      <p className="mt-1 font-mono text-xs tracking-wide text-foreground/40">
-        {member.track}
-      </p>
+      {member.deptClass && (
+        <p className="mt-2 font-mono text-xs text-foreground/40">
+          {member.deptClass}
+        </p>
+      )}
     </div>
   );
 }
