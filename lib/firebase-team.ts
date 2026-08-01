@@ -9,9 +9,8 @@ import {
   query,
   orderBy,
 } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 import type { AdminMember, AdminTeamCategory } from "@/lib/team-types";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { db, storage } from "@/lib/firebase";
 
 const CATEGORIES_COLLECTION = "teamCategories";
 const MEMBERS_COLLECTION = "teamMembers";
@@ -32,13 +31,6 @@ export function subscribeCategories(
       }),
     );
   });
-}
-
-export async function uploadMemberPhoto(memberId: string, file: File): Promise<string> {
-  const ext = file.name.split(".").pop() || "jpg";
-  const photoRef = ref(storage, `team-photos/${memberId}.${ext}`);
-  await uploadBytes(photoRef, file);
-  return getDownloadURL(photoRef);
 }
 
 export function subscribeMembers(callback: (members: AdminMember[]) => void) {
