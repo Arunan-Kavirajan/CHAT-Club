@@ -1,13 +1,21 @@
-import { GALLERY_IMAGES } from "@/lib/data/gallery";
-import { GalleryItem } from "./gallery-item";
+"use client";
+
+import type { AdminEvent } from "@/lib/event-types";
+import { GalleryCard } from "./gallery-card";
 import { ScrollRevealGroup, ScrollRevealItem } from "@/components/motion/scroll-reveal";
 
-export function GalleryGrid() {
+export function GalleryGrid({
+  events,
+  onOpenEvent,
+}: {
+  events: AdminEvent[];
+  onOpenEvent: (event: AdminEvent) => void;
+}) {
   return (
-    <ScrollRevealGroup className="columns-2 sm:columns-3 gap-6" stagger={0.05}>
-      {GALLERY_IMAGES.map((image) => (
-        <ScrollRevealItem key={image.id} className="break-inside-avoid mb-6 group">
-          <GalleryItem image={image} />
+    <ScrollRevealGroup className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+      {events.map((event) => (
+        <ScrollRevealItem key={event.id}>
+          <GalleryCard event={event} onOpen={() => onOpenEvent(event)} />
         </ScrollRevealItem>
       ))}
     </ScrollRevealGroup>
