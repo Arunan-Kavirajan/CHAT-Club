@@ -1,25 +1,32 @@
-import { initializeApp, getApps, cert, type App } from "firebase-admin/app";
-import { getAuth } from "firebase-admin/auth";
+import { jwtVerify, importX509, decodeProtectedHeader } from "jose";
 import { ALLOWED_ADMIN_EMAIL } from "@/lib/admin-config";
 
-function getAdminApp(): App {
-  if (getApps().length) return getApps()[0];
-  return initializeApp({
-    credential: cert({
-      projectId: process.env.FIREBASE_ADMIN_PROJECT_ID,
-      clientEmail: process.env.FIREBASE_ADMIN_CLIENT_EMAIL,
-      privateKey: process.env.FIREBASE_ADMIN_PRIVATE_KEY?.replace(/\\n/g, "\n"),
-    }),
-  });
+// Verifying a Firebase ID token only requires Google's *public* signing
+// certs — no service account or private key needed. This intentionally
+// avoids firebase-admin, whose auth module currently pulls in jwks-rsa,
+// which in turn pulls in an ESM-only version of `jose` that breaks under
+// require() in Vercel's Node runtime. Verifying manually with `jose`
+// directly sidesteps that whole broken chain.
+const CERTS_URL =
+  "https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system.gserviceaccount.com";
+const PROJECT_ID = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
+
+let cachedCerts: { certs: Record<string, string>; expiresAt: number } | null = null;
+
+async function getGoogleCerts(): Promise<Record<string, string>> {
+  if (cachedCerts && cachedCerts.expiresAt > Date.now()) {
+    return cachedCerts.certs;
+  }
+  const res = await fetch(CERTS_URL);
+  if (!res.ok) throw new Error("Failed to fetch Google certs");
+  const certs = (await res.json()) as Record<string, string>;
+  // Google rotates these periodically — cache conservatively.
+  cachedCerts = { certs, expiresAt: Date.now() + 60 * 60 * 1000 };
+  return certs;
 }
 
 type VerifyResult = { ok: true } | { ok: false; status: number; error: string };
 
-// Verifies the request actually comes from your signed-in admin account,
-// not just "someone hit the URL." The client sends its Firebase ID token
-// in the Authorization header; this checks it's valid AND belongs to the
-// one allowed email — the same check the client-side AuthGate does, but
-// now enforced server-side where it actually matters.
 export async function verifyAdminRequest(request: Request): Promise<VerifyResult> {
   const authHeader = request.headers.get("authorization");
   if (!authHeader?.startsWith("Bearer ")) {
@@ -27,11 +34,29 @@ export async function verifyAdminRequest(request: Request): Promise<VerifyResult
   }
   const idToken = authHeader.slice("Bearer ".length);
 
+  if (!PROJECT_ID) {
+    return { ok: false, status: 500, error: "Server misconfigured." };
+  }
+
   try {
-    const decoded = await getAuth(getAdminApp()).verifyIdToken(idToken);
-    if (decoded.email !== ALLOWED_ADMIN_EMAIL) {
+    const { kid } = decodeProtectedHeader(idToken);
+    if (!kid) return { ok: false, status: 401, error: "Invalid token." };
+
+    const certs = await getGoogleCerts();
+    const pem = certs[kid];
+    if (!pem) return { ok: false, status: 401, error: "Invalid token." };
+
+    const publicKey = await importX509(pem, "RS256");
+
+    const { payload } = await jwtVerify(idToken, publicKey, {
+      issuer: `https://securetoken.google.com/${PROJECT_ID}`,
+      audience: PROJECT_ID,
+    });
+
+    if (payload.email !== ALLOWED_ADMIN_EMAIL) {
       return { ok: false, status: 403, error: "Unauthorized account." };
     }
+
     return { ok: true };
   } catch {
     return { ok: false, status: 401, error: "Invalid or expired session." };
