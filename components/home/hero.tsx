@@ -1,35 +1,132 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import { useTheme } from "@/components/theme/theme-context";
+import { useReducedMotion } from "framer-motion";
+
+const TAGLINE = "INITIATING BREACH";
+const MASK_URL = "url(/logo/chat-logo-mask.png)";
+
+type BurstState = "idle" | "small" | "big";
+
 export function Hero() {
+  const { theme } = useTheme();
+  const shouldReduceMotion = useReducedMotion();
+  const [burst, setBurst] = useState<BurstState>("idle");
+  const [sliceTop, setSliceTop] = useState(40);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const isRed = theme === "dark";
+
+  useEffect(() => {
+    // Blue Team's hero treatment is being designed separately — for now
+    // it just gets the calm glow, no glitch cycle. Also fully skipped
+    // under prefers-reduced-motion.
+    if (shouldReduceMotion || !isRed) return;
+
+    let burstCount = 0;
+
+    function scheduleNext() {
+      const delay = 4000 + Math.random() * 3000; // 4-7s, randomized on purpose
+      timeoutRef.current = setTimeout(() => {
+        burstCount++;
+        const isBig = burstCount % 4 === 0; // roughly 1 in 4 bursts
+        setSliceTop(15 + Math.random() * 55);
+        setBurst(isBig ? "big" : "small");
+
+        const burstDuration = isBig ? 550 : 220;
+        setTimeout(() => setBurst("idle"), burstDuration);
+
+        scheduleNext();
+      }, delay);
+    }
+
+    scheduleNext();
+    return () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
+  }, [isRed, shouldReduceMotion]);
+
+  const maskStyle = { WebkitMaskImage: MASK_URL, maskImage: MASK_URL };
+
   return (
-    <section className="mx-auto max-w-6xl px-6 pt-24 pb-20 sm:pt-32 sm:pb-28">
-      <p className="font-mono text-sm text-accent mb-5 tracking-wide">
-        SRMIST &middot; CYBERSECURITY
-      </p>
+    <section className="relative h-dvh w-full overflow-hidden flex flex-col items-center justify-center px-6">
+      {!shouldReduceMotion && isRed && (
+        <div className="hero-scanline pointer-events-none absolute inset-0" />
+      )}
 
-      <h1 className="text-5xl sm:text-7xl font-semibold tracking-tight max-w-3xl leading-[1.05]">
-        We break things to
-        <br />
-        understand them.
-      </h1>
+      {/* Turbulence filter for the "big" burst's decrypt-into-noise moment.
+          Zero-size, purely a filter definition — not visible itself. */}
+      <svg width="0" height="0" className="absolute">
+        <filter id="chat-noise">
+          <feTurbulence
+            type="fractalNoise"
+            baseFrequency="0.9"
+            numOctaves={2}
+            stitchTiles="stitch"
+            result="noise"
+          />
+          <feColorMatrix
+            in="noise"
+            type="matrix"
+            values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 1 0"
+          />
+          <feComposite operator="in" in2="SourceGraphic" />
+        </filter>
+      </svg>
 
-      <p className="mt-7 text-lg text-foreground/70 max-w-xl leading-relaxed">
-        CHAT is SRMIST&apos;s cybersecurity club — students who hack, defend,
-        and take systems apart to see how they work. We also build across
-        fullstack and AI, but security is what we&apos;re here for.
-      </p>
-
-      <div className="mt-10 flex items-center gap-4">
-        <a
-          href="/join"
-          className="font-mono text-sm px-5 py-3 rounded-md bg-accent text-background hover:opacity-90 transition-opacity"
+      <div className="relative flex flex-col items-center">
+        <div
+          className={`hero-logo-wrap relative ${
+            burst === "small" ? "burst-small" : burst === "big" ? "burst-big" : ""
+          }`}
         >
-          Join CHAT →
-        </a>
-        <a
-          href="/events"
-          className="font-mono text-sm px-5 py-3 rounded-md border border-foreground/15 hover:border-accent/60 transition-colors"
-        >
-          See what we do
-        </a>
+          <div className="hero-logo" style={maskStyle} />
+
+          {isRed && !shouldReduceMotion && (
+            <>
+              <div
+                className="hero-logo hero-logo-ghost hero-logo-ghost-a"
+                style={maskStyle}
+              />
+              <div
+                className="hero-logo hero-logo-ghost hero-logo-ghost-b"
+                style={maskStyle}
+              />
+              <div
+                className="hero-logo hero-logo-slice"
+                style={{
+                  ...maskStyle,
+                  clipPath: `inset(${sliceTop}% 0 ${100 - sliceTop - 12}% 0)`,
+                }}
+              />
+              <div
+                className="hero-logo hero-logo-noise"
+                style={maskStyle}
+              />
+            </>
+          )}
+        </div>
+
+        {isRed && (
+          <p
+            className={`mt-6 font-mono text-xs sm:text-sm tracking-[0.3em] text-foreground/60 ${
+              burst === "big" ? "tagline-flicker" : ""
+            }`}
+          >
+            {TAGLINE}
+          </p>
+        )}
+      </div>
+
+      <div
+        className="absolute bottom-8 sm:bottom-10 flex flex-col items-center gap-2"
+        style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+      >
+        <span className="font-mono text-[10px] tracking-[0.25em] text-foreground/40">
+          SCROLL<span className="term-cursor">_</span>
+        </span>
+        <span className="scroll-chevron block text-foreground/40">⌄</span>
       </div>
     </section>
   );
