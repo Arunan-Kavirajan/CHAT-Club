@@ -1,12 +1,13 @@
 import { NextResponse } from "next/server";
+import { verifyAdminRequest } from "@/lib/firebase-admin";
+
+export const runtime = "nodejs";
 
 const GITHUB_OWNER = process.env.GITHUB_OWNER;
 const GITHUB_REPO = process.env.GITHUB_REPO;
 const GITHUB_BRANCH = process.env.GITHUB_BRANCH || "main";
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 
-// Strips anything outside [a-zA-Z0-9-_] per path segment — a ".." segment
-// becomes empty and gets dropped, which neutralizes path traversal.
 function sanitizeFolder(folder: string): string {
   const cleaned = folder
     .split("/")
@@ -17,6 +18,11 @@ function sanitizeFolder(folder: string): string {
 }
 
 export async function POST(request: Request) {
+  const auth = await verifyAdminRequest(request);
+  if (!auth.ok) {
+    return NextResponse.json({ error: auth.error }, { status: auth.status });
+  }
+
   if (!GITHUB_OWNER || !GITHUB_REPO || !GITHUB_TOKEN) {
     return NextResponse.json(
       { error: "GitHub upload isn't configured." },

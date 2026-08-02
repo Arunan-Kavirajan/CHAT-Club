@@ -11,10 +11,10 @@ export default function AdminEventsPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingEvent, setEditingEvent] = useState<AdminEvent | null>(null);
 
-  function handleDelete(event: AdminEvent) {
+  async function handleDelete(event: AdminEvent) {
     deleteEventDoc(event.id);
     if (event.thumbnailUrl) {
-      deleteImageFromGithub(event.thumbnailUrl); // best-effort, not blocking
+      await deleteImageFromGithub(event.thumbnailUrl);
     }
     if (event.folderSlug) {
       deleteFolderFromGithub(`event-photos/${event.folderSlug}`);

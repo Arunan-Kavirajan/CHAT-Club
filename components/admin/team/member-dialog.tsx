@@ -2,7 +2,7 @@
 
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import type { AdminMember, AdminTeamCategory } from "@/lib/team-types";
-import { uploadImageToGithub } from "@/lib/github-upload";
+import { uploadImageToGithub, deleteImageFromGithub } from "@/lib/github-upload";
 
 type Props = {
   open: boolean;
@@ -76,8 +76,8 @@ export function MemberDialog({ open, categories, initialData, onClose, onSave }:
       setUploadError("Please choose an image file.");
       return;
     }
-    if (file.size > 4 * 1024 * 1024) {
-      setUploadError("Image must be under 4MB.");
+    if (file.size > 20 * 1024 * 1024) {
+      setUploadError("Image must be under 20MB.");
       return;
     }
 
@@ -87,10 +87,14 @@ export function MemberDialog({ open, categories, initialData, onClose, onSave }:
     setUploading(true);
 
     try {
+      const previousUrl = form.photoUrl;
       const url = await uploadImageToGithub(file);
       setForm((prev) => ({ ...prev, photoUrl: url }));
-    } catch (err) {
-      setUploadError(err instanceof Error ? err.message : "Upload failed. Try again.");
+      if (previousUrl && previousUrl !== url) {
+        deleteImageFromGithub(previousUrl); // best-effort, not blocking
+      }
+    } catch {
+      setUploadError("Upload failed. Try again.");
       setPreviewUrl(null);
     } finally {
       setUploading(false);

@@ -2,8 +2,9 @@
 
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
 import type { AdminEvent } from "@/lib/event-types";
-import { uploadImageToGithub } from "@/lib/github-upload";
+import { uploadImageToGithub, deleteImageFromGithub } from "@/lib/github-upload";
 import { slugify } from "@/lib/slugify";
+
 
 type Props = {
   open: boolean;
@@ -68,7 +69,7 @@ export function EventDialog({ open, initialData, onClose, onSave }: Props) {
 
   function validateImage(file: File): string | null {
     if (!file.type.startsWith("image/")) return "Please choose an image file.";
-    if (file.size > 4 * 1024 * 1024) return "Image must be under 4MB.";
+    if (file.size > 20 * 1024 * 1024) return "Image must be under 20MB.";
     return null;
   }
 
@@ -96,8 +97,12 @@ export function EventDialog({ open, initialData, onClose, onSave }: Props) {
     setUploadingThumbnail(true);
 
     try {
+      const previousUrl = form.thumbnailUrl;
       const url = await uploadImageToGithub(file, "thumbnails");
       setForm((prev) => ({ ...prev, thumbnailUrl: url }));
+      if (previousUrl && previousUrl !== url) {
+        deleteImageFromGithub(previousUrl); // best-effort, not blocking
+      }
     } catch (err) {
       setUploadError(err instanceof Error ? err.message : "Upload failed.");
       setThumbnailPreview(null);
@@ -136,6 +141,7 @@ export function EventDialog({ open, initialData, onClose, onSave }: Props) {
 
   function removePhoto(url: string) {
     setForm((prev) => ({ ...prev, photoUrls: prev.photoUrls.filter((p) => p !== url) }));
+    deleteImageFromGithub(url); // best-effort, not blocking
   }
 
   function addHost() {
