@@ -18,6 +18,7 @@
   --foreground: #e8e4f0;
   --muted: #1c1926;
   --accent: #d3505f;
+  --hero-red: #ff2e46;
 }
 
 :root[data-theme="light"] {
@@ -152,40 +153,23 @@ body {
   inset: 0;
   width: 100%;
   height: 100%;
-  background-color: var(--accent);
-  -webkit-mask-repeat: no-repeat;
-  mask-repeat: no-repeat;
-  -webkit-mask-size: contain;
-  mask-size: contain;
-  -webkit-mask-position: center;
-  mask-position: center;
-  filter: drop-shadow(0 0 14px var(--accent));
+  filter: drop-shadow(0 0 14px var(--hero-red));
   animation: hero-logo-pulse 4s ease-in-out infinite;
 }
 
 @keyframes hero-logo-pulse {
   0%,
   100% {
-    filter: drop-shadow(0 0 14px var(--accent));
-    opacity: 0.95;
+    filter: drop-shadow(0 0 14px var(--hero-red));
   }
   50% {
-    filter: drop-shadow(0 0 26px var(--accent));
-    opacity: 1;
+    filter: drop-shadow(0 0 26px var(--hero-red));
   }
 }
 
 .hero-logo-ghost {
   opacity: 0;
   mix-blend-mode: screen;
-}
-
-.hero-logo-ghost-a {
-  background-color: #6d4c96;
-}
-
-.hero-logo-ghost-b {
-  background-color: #6d4c96;
 }
 
 .hero-logo-slice {
@@ -433,10 +417,10 @@ body {
   background: linear-gradient(
     to bottom,
     transparent 0%,
-    var(--accent) 50%,
+    var(--hero-red) 50%,
     transparent 100%
   );
-  opacity: 0.05;
+  opacity: 0.06;
   height: 40%;
   animation: scanline-sweep 6s linear infinite;
 }

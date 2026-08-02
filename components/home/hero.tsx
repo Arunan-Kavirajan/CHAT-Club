@@ -3,9 +3,9 @@
 import { useEffect, useRef, useState } from "react";
 import { useTheme } from "@/components/theme/theme-context";
 import { useReducedMotion } from "framer-motion";
+import { ChatLogoShape } from "./chat-logo-shape";
 
 const TAGLINE = "INITIATING BREACH";
-const MASK_URL = "url(/logo/chat-logo-mask.png)";
 
 type BurstState = "idle" | "small" | "big";
 
@@ -19,18 +19,15 @@ export function Hero() {
   const isRed = theme === "dark";
 
   useEffect(() => {
-    // Blue Team's hero treatment is being designed separately — for now
-    // it just gets the calm glow, no glitch cycle. Also fully skipped
-    // under prefers-reduced-motion.
     if (shouldReduceMotion || !isRed) return;
 
     let burstCount = 0;
 
     function scheduleNext() {
-      const delay = 4000 + Math.random() * 3000; // 4-7s, randomized on purpose
+      const delay = 4000 + Math.random() * 3000;
       timeoutRef.current = setTimeout(() => {
         burstCount++;
-        const isBig = burstCount % 4 === 0; // roughly 1 in 4 bursts
+        const isBig = burstCount % 4 === 0;
         setSliceTop(15 + Math.random() * 55);
         setBurst(isBig ? "big" : "small");
 
@@ -47,16 +44,12 @@ export function Hero() {
     };
   }, [isRed, shouldReduceMotion]);
 
-  const maskStyle = { WebkitMaskImage: MASK_URL, maskImage: MASK_URL };
-
   return (
-    <section className="relative h-dvh w-full overflow-hidden flex flex-col items-center justify-center px-6">
+    <section className="relative h-[calc(100dvh-4rem)] w-full overflow-hidden flex flex-col items-center justify-center px-6">
       {!shouldReduceMotion && isRed && (
         <div className="hero-scanline pointer-events-none absolute inset-0" />
       )}
 
-      {/* Turbulence filter for the "big" burst's decrypt-into-noise moment.
-          Zero-size, purely a filter definition — not visible itself. */}
       <svg width="0" height="0" className="absolute">
         <filter id="chat-noise">
           <feTurbulence
@@ -81,28 +74,28 @@ export function Hero() {
             burst === "small" ? "burst-small" : burst === "big" ? "burst-big" : ""
           }`}
         >
-          <div className="hero-logo" style={maskStyle} />
+          <ChatLogoShape className="hero-logo" fill="var(--hero-red)" />
 
           {isRed && !shouldReduceMotion && (
             <>
-              <div
+              <ChatLogoShape
                 className="hero-logo hero-logo-ghost hero-logo-ghost-a"
-                style={maskStyle}
+                fill="#6d4c96"
               />
-              <div
+              <ChatLogoShape
                 className="hero-logo hero-logo-ghost hero-logo-ghost-b"
-                style={maskStyle}
+                fill="#6d4c96"
               />
-              <div
+              <ChatLogoShape
                 className="hero-logo hero-logo-slice"
+                fill="var(--hero-red)"
                 style={{
-                  ...maskStyle,
                   clipPath: `inset(${sliceTop}% 0 ${100 - sliceTop - 12}% 0)`,
                 }}
               />
-              <div
+              <ChatLogoShape
                 className="hero-logo hero-logo-noise"
-                style={maskStyle}
+                fill="var(--hero-red)"
               />
             </>
           )}
@@ -110,7 +103,7 @@ export function Hero() {
 
         {isRed && (
           <p
-            className={`mt-6 font-mono text-xs sm:text-sm tracking-[0.3em] text-foreground/60 ${
+            className={`mt-6 font-mono text-sm sm:text-base font-bold tracking-[0.3em] text-[var(--hero-red)] ${
               burst === "big" ? "tagline-flicker" : ""
             }`}
           >
@@ -123,10 +116,10 @@ export function Hero() {
         className="absolute bottom-8 sm:bottom-10 flex flex-col items-center gap-2"
         style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
       >
-        <span className="font-mono text-[10px] tracking-[0.25em] text-foreground/40">
+        <span className="font-mono text-xs tracking-[0.25em] font-medium text-foreground/70">
           SCROLL<span className="term-cursor">_</span>
         </span>
-        <span className="scroll-chevron block text-foreground/40">⌄</span>
+        <span className="scroll-chevron block text-foreground/70">⌄</span>
       </div>
     </section>
   );
