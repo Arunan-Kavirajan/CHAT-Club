@@ -8,8 +8,6 @@ import { THEME_TOKENS } from "@/lib/theme-tokens";
 /* Red Team — scattered live terminal panes                               */
 /* ---------------------------------------------------------------------- */
 
-// Purely decorative flavor text — fictional pseudo-terminal output, not
-// real exploit code or functioning tooling.
 const LINE_POOL = [
   "root@chat:~# nmap -sS 10.0.0.0/24",
   "[+] host up (0.014s latency)",
@@ -181,6 +179,25 @@ function TerminalPane({ pane }: { pane: PlacedPane }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Reacts to the hero's "big burst" moments — a random subset of panes
+  // force-flash their most recent line, so the background feels like
+  // part of the same system reacting, not a separate decoration.
+  useEffect(() => {
+    function handleBigBurst() {
+      if (Math.random() < 0.5) {
+        setLines((prev) => {
+          if (prev.length === 0) return prev;
+          const updated = [...prev];
+          const lastIdx = updated.length - 1;
+          updated[lastIdx] = { ...updated[lastIdx], flash: true };
+          return updated;
+        });
+      }
+    }
+    window.addEventListener("chat:heroBigBurst", handleBigBurst);
+    return () => window.removeEventListener("chat:heroBigBurst", handleBigBurst);
+  }, []);
+
   const currentLine = pool[lineIndexRef.current % pool.length];
 
   return (
@@ -250,24 +267,16 @@ const RADAR_CONFIGS: RadarConfig[] = [
   { originXPercent: 94, originYPercent: 90, sweepDurationSec: 18, blipCount: 9, ringCount: 3 },
 ];
 
-type Blip = {
-  angleDeg: number;
-  radiusFrac: number;
-  size: number;
-  pulseDurationSec: number;
-  pulseDelaySec: number;
-};
+type Blip = { angleDeg: number; radiusFrac: number; size: number; pulseDurationSec: number; pulseDelaySec: number };
 
 function generateBlips(count: number): Blip[] {
   return Array.from({ length: count }, () => {
-    const pulseDurationSec = 2.2 + Math.random() * 1.8; // 2.2-4s — independent of the sweep
+    const pulseDurationSec = 2.2 + Math.random() * 1.8;
     return {
       angleDeg: Math.random() * 360,
       radiusFrac: 0.25 + Math.random() * 0.65,
       size: 4 + Math.random() * 4,
       pulseDurationSec,
-      // Negative delay starts each blip already partway into its cycle,
-      // so all blips on a radar don't flash in unison.
       pulseDelaySec: -(Math.random() * pulseDurationSec),
     };
   });
@@ -319,7 +328,6 @@ function Radar({
     >
       {rings}
 
-      {/* Rotating sweep trail */}
       <div
         className="absolute inset-0 rounded-full"
         style={{
@@ -328,7 +336,6 @@ function Radar({
         }}
       />
 
-      {/* Contact blips — flash timed to when the sweep passes their angle */}
       {blips.map((blip, i) => {
         const angleRad = (blip.angleDeg * Math.PI) / 180;
         const left = radius + Math.cos(angleRad) * blip.radiusFrac * radius;

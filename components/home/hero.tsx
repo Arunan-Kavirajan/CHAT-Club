@@ -4,8 +4,11 @@ import { useEffect, useRef, useState } from "react";
 import { useTheme } from "@/components/theme/theme-context";
 import { useReducedMotion } from "framer-motion";
 import { ChatLogoShape } from "./chat-logo-shape";
+import { CircuitTraceBackground } from "./circuit-trace-background";
 
 const TAGLINE = "INITIATING BREACH";
+const SCRAMBLE_CHARS =
+  "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!<>-_/[]{}=+*^?#";
 
 type BurstState = "idle" | "small" | "big";
 
@@ -14,10 +17,41 @@ export function Hero() {
   const shouldReduceMotion = useReducedMotion();
   const [burst, setBurst] = useState<BurstState>("idle");
   const [sliceTop, setSliceTop] = useState(40);
+  const [taglineDisplay, setTaglineDisplay] = useState(TAGLINE);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const taglineIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const logoWrapRef = useRef<HTMLDivElement>(null);
 
   const isRed = theme === "dark";
 
+  function scrambleTagline(durationMs: number) {
+    if (taglineIntervalRef.current) clearInterval(taglineIntervalRef.current);
+    const length = TAGLINE.length;
+    const tickMs = 30;
+    const totalTicks = Math.max(6, Math.round(durationMs / tickMs));
+    let tick = 0;
+
+    taglineIntervalRef.current = setInterval(() => {
+      tick++;
+      const revealCount = Math.floor((tick / totalTicks) * length);
+      const next = TAGLINE.split("")
+        .map((ch, i) => {
+          if (ch === " ") return " ";
+          if (i < revealCount) return ch;
+          return SCRAMBLE_CHARS[Math.floor(Math.random() * SCRAMBLE_CHARS.length)];
+        })
+        .join("");
+      setTaglineDisplay(next);
+
+      if (tick >= totalTicks) {
+        if (taglineIntervalRef.current) clearInterval(taglineIntervalRef.current);
+        setTaglineDisplay(TAGLINE);
+      }
+    }, tickMs);
+  }
+
+  // Burst cycle — logo glitch, synced tagline scramble, and (on big
+  // bursts) a signal to the ambient background to react too.
   useEffect(() => {
     if (shouldReduceMotion || !isRed) return;
 
@@ -30,6 +64,11 @@ export function Hero() {
         const isBig = burstCount % 4 === 0;
         setSliceTop(15 + Math.random() * 55);
         setBurst(isBig ? "big" : "small");
+        scrambleTagline(isBig ? 500 : 280);
+
+        if (isBig) {
+          window.dispatchEvent(new CustomEvent("chat:heroBigBurst"));
+        }
 
         const burstDuration = isBig ? 550 : 220;
         setTimeout(() => setBurst("idle"), burstDuration);
@@ -41,6 +80,38 @@ export function Hero() {
     scheduleNext();
     return () => {
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      if (taglineIntervalRef.current) clearInterval(taglineIntervalRef.current);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isRed, shouldReduceMotion]);
+
+  // Continuous subtle 3D tilt following the cursor — independent of the
+  // burst cycle, always active while Red Team is showing.
+  useEffect(() => {
+    if (shouldReduceMotion || !isRed) return;
+
+    function handleMouseMove(e: MouseEvent) {
+      const el = logoWrapRef.current;
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      const dx = Math.max(-1, Math.min(1, (e.clientX - cx) / (rect.width / 2)));
+      const dy = Math.max(-1, Math.min(1, (e.clientY - cy) / (rect.height / 2)));
+      const maxTilt = 8;
+      el.style.transform = `perspective(900px) rotateX(${(-dy * maxTilt).toFixed(2)}deg) rotateY(${(dx * maxTilt).toFixed(2)}deg)`;
+    }
+
+    function handleMouseLeave() {
+      const el = logoWrapRef.current;
+      if (el) el.style.transform = "perspective(900px) rotateX(0deg) rotateY(0deg)";
+    }
+
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseleave", handleMouseLeave);
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseleave", handleMouseLeave);
     };
   }, [isRed, shouldReduceMotion]);
 
@@ -69,7 +140,10 @@ export function Hero() {
       </svg>
 
       <div className="relative flex flex-col items-center">
+        {isRed && !shouldReduceMotion && <CircuitTraceBackground />}
+
         <div
+          ref={logoWrapRef}
           className={`hero-logo-wrap relative ${
             burst === "small" ? "burst-small" : burst === "big" ? "burst-big" : ""
           }`}
@@ -93,10 +167,8 @@ export function Hero() {
                   clipPath: `inset(${sliceTop}% 0 ${100 - sliceTop - 12}% 0)`,
                 }}
               />
-              <ChatLogoShape
-                className="hero-logo hero-logo-noise"
-                fill="var(--hero-red)"
-              />
+              <ChatLogoShape className="hero-logo hero-logo-noise" fill="var(--hero-red)" />
+              {burst === "big" && <span className="hero-shockwave" />}
             </>
           )}
         </div>
@@ -107,7 +179,7 @@ export function Hero() {
               burst === "big" ? "tagline-flicker" : ""
             }`}
           >
-            {TAGLINE}
+            {taglineDisplay}
           </p>
         )}
       </div>
