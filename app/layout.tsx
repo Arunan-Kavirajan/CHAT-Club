@@ -7,6 +7,7 @@ import { ThemeScript } from "@/components/theme/theme-script";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { GlobalBackground } from "@/components/background/global-background";
+import { MobileGate } from "@/components/mobile-gate/mobile-gate";
 
 export const metadata: Metadata = {
   title: "CHAT — Community of Hackers and Advanced Technologists",
@@ -29,6 +30,7 @@ export default function RootLayout({
         <ThemeScript />
       </head>
       <body className="min-h-full flex flex-col">
+        <MobileGate />
         <ThemeProvider>
           <GlobalBackground />
           <Navbar />

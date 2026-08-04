@@ -42,6 +42,28 @@
   --admin-accent-soft: rgba(139, 92, 246, 0.18);
 }
 
+.gate-logo-pulse {
+  animation: gate-pulse 3.5s ease-in-out infinite;
+}
+
+@keyframes gate-pulse {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 10px var(--admin-accent));
+    opacity: 0.9;
+  }
+  50% {
+    filter: drop-shadow(0 0 20px var(--admin-accent));
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gate-logo-pulse {
+    animation: none;
+  }
+}
+
 .admin-input {
   background: var(--admin-muted);
   border: 1px solid var(--admin-accent-soft);
@@ -446,41 +468,33 @@ body {
   }
 }
 
-/* Double ring-confirm, big bursts only */
-.hero-ring-confirm {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  height: 130%;
-  aspect-ratio: 1 / 1;
-  border: 2px solid var(--hero-blue);
-  border-radius: 50%;
-  pointer-events: none;
-  transform: translate(-50%, -50%) scale(0.9);
+/* Blue Team — defensive zap, replaces the old generic ring. A bolt
+   fires inward and strikes the shield, tying directly into "THREAT
+   CONTAINED" rather than being an unexplained shape. */
+.hero-zap {
   opacity: 0;
-  animation: ring-confirm 500ms ease-out forwards;
+  filter: drop-shadow(0 0 6px #eaf6ff);
+  animation: zap-strike 500ms ease-out;
 }
 
-.hero-ring-confirm-b {
-  animation-delay: 150ms;
-}
-
-@keyframes ring-confirm {
+@keyframes zap-strike {
   0% {
     opacity: 0;
-    transform: translate(-50%, -50%) scale(0.9);
   }
-  30% {
-    opacity: 0.9;
-    transform: translate(-50%, -50%) scale(1.02);
+  15% {
+    opacity: 1;
   }
-  70% {
-    opacity: 0.6;
-    transform: translate(-50%, -50%) scale(1);
+  25% {
+    opacity: 0.3;
+  }
+  35% {
+    opacity: 1;
+  }
+  55% {
+    opacity: 0;
   }
   100% {
     opacity: 0;
-    transform: translate(-50%, -50%) scale(1);
   }
 }
 

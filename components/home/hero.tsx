@@ -19,6 +19,7 @@ export function Hero() {
   const shouldReduceMotion = useReducedMotion();
   const [burst, setBurst] = useState<BurstState>("idle");
   const [sliceTop, setSliceTop] = useState(40);
+  const [zapPoints, setZapPoints] = useState("");
   const [taglineDisplay, setTaglineDisplay] = useState(TAGLINE_RED);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const taglineIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -73,6 +74,31 @@ export function Hero() {
     }, charDelay);
   }
 
+  function generateZapPath(): string {
+    const angle = Math.random() * 360;
+    const rad = (angle * Math.PI) / 180;
+    const cx = 50;
+    const cy = 50;
+    const startX = cx + Math.cos(rad) * 85;
+    const startY = cy + Math.sin(rad) * 85;
+    const endX = cx + Math.cos(rad) * 30;
+    const endY = cy + Math.sin(rad) * 30;
+
+    const segments = 3;
+    const points = [`${startX.toFixed(1)},${startY.toFixed(1)}`];
+    for (let i = 1; i < segments; i++) {
+      const t = i / segments;
+      const px = startX + (endX - startX) * t;
+      const py = startY + (endY - startY) * t;
+      const jitter = (Math.random() - 0.5) * 14;
+      const perpX = -Math.sin(rad) * jitter;
+      const perpY = Math.cos(rad) * jitter;
+      points.push(`${(px + perpX).toFixed(1)},${(py + perpY).toFixed(1)}`);
+    }
+    points.push(`${endX.toFixed(1)},${endY.toFixed(1)}`);
+    return points.join(" ");
+  }
+
   useEffect(() => {
     if (shouldReduceMotion) return;
 
@@ -84,6 +110,7 @@ export function Hero() {
         burstCount++;
         const isBig = burstCount % 4 === 0;
         setSliceTop(15 + Math.random() * 55);
+        setZapPoints(generateZapPath());
         setBurst(isBig ? "big" : "small");
 
         if (isRed) {
@@ -220,10 +247,18 @@ export function Hero() {
               <span className="hero-bracket hero-bracket-br" />
 
               {burst === "big" && (
-                <>
-                  <span className="hero-ring-confirm hero-ring-confirm-a" />
-                  <span className="hero-ring-confirm hero-ring-confirm-b" />
-                </>
+                <svg
+                  viewBox="0 0 100 100"
+                  preserveAspectRatio="none"
+                  className="hero-zap absolute inset-0"
+                >
+                  <polyline
+                    points={zapPoints}
+                    fill="none"
+                    stroke="#eaf6ff"
+                    strokeWidth={1.4}
+                  />
+                </svg>
               )}
             </>
           )}
