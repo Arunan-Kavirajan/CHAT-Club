@@ -1,6 +1,6 @@
 import { Hero } from "@/components/home/hero";
 import { Mission } from "@/components/home/mission";
-import { Highlight } from "@/components/home/highlight";
+import { GalleryPreview } from "@/components/home/gallery-preview";
 import { Cta } from "@/components/home/cta";
 import { ScrollReveal } from "@/components/motion/scroll-reveal";
 
@@ -12,7 +12,7 @@ export default function HomePage() {
         <Mission />
       </ScrollReveal>
       <ScrollReveal>
-        <Highlight />
+        <GalleryPreview />
       </ScrollReveal>
       <ScrollReveal>
         <Cta />

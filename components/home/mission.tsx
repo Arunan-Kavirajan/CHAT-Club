@@ -1,3 +1,5 @@
+import { HoverScramble } from "@/components/motion/hover-scramble";
+
 const FOCUS_AREAS = [
   {
     label: "Cybersecurity",
@@ -22,7 +24,7 @@ export function Mission() {
       <div className="grid sm:grid-cols-[1fr_1.2fr] gap-12">
         <div>
           <h2 className="text-3xl font-semibold tracking-tight">
-            What CHAT is
+            <HoverScramble>What CHAT is</HoverScramble>
           </h2>
           <p className="mt-5 text-foreground/70 leading-relaxed max-w-sm">
             A club built around one idea: understanding a system well enough
@@ -44,7 +46,7 @@ export function Mission() {
                   area.primary ? "text-accent" : "text-foreground/60"
                 }`}
               >
-                {area.label}
+                <HoverScramble>{area.label}</HoverScramble>
               </p>
               <p className="mt-1 text-foreground/70">{area.detail}</p>
             </li>
