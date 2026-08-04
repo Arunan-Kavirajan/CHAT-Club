@@ -19,6 +19,7 @@
   --muted: #1c1926;
   --accent: #d3505f;
   --hero-red: #ff2e46;
+  --hero-glow: var(--hero-red);
 }
 
 :root[data-theme="light"] {
@@ -26,6 +27,8 @@
   --foreground: #1a1610;
   --muted: #ede5d8;
   --accent: #2f5c88;
+  --hero-blue: #2f8cff;
+  --hero-glow: var(--hero-blue);
 }
 
 /* Admin panel — its own fixed dark-violet identity, independent of the
@@ -153,17 +156,414 @@ body {
   inset: 0;
   width: 100%;
   height: 100%;
-  filter: drop-shadow(0 0 14px var(--hero-red));
+  filter: drop-shadow(0 0 14px var(--hero-glow));
   animation: hero-logo-pulse 4s ease-in-out infinite;
 }
 
 @keyframes hero-logo-pulse {
   0%,
   100% {
-    filter: drop-shadow(0 0 14px var(--hero-red));
+    filter: drop-shadow(0 0 14px var(--hero-glow));
   }
   50% {
-    filter: drop-shadow(0 0 26px var(--hero-red));
+    filter: drop-shadow(0 0 26px var(--hero-glow));
+  }
+}
+
+/* Blue Team scan-sweep (parallel to Red's ghost/slice) */
+/* Blue Team — continuous idle scan texture on the logo itself */
+.hero-logo-gridlines {
+  opacity: 0.14;
+  -webkit-mask-image: repeating-linear-gradient(
+    to bottom,
+    white 0px,
+    white 1px,
+    transparent 1px,
+    transparent 5px
+  );
+  mask-image: repeating-linear-gradient(
+    to bottom,
+    white 0px,
+    white 1px,
+    transparent 1px,
+    transparent 5px
+  );
+  -webkit-mask-size: 100% 200%;
+  mask-size: 100% 200%;
+  animation: gridlines-drift 3s linear infinite;
+}
+
+@keyframes gridlines-drift {
+  from {
+    -webkit-mask-position: 0 0;
+    mask-position: 0 0;
+  }
+  to {
+    -webkit-mask-position: 0 30px;
+    mask-position: 0 30px;
+  }
+}
+
+/* Scan-sweep — a bright band passes across the logo */
+.hero-logo-scan {
+  opacity: 0;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, white 50%, transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0%, white 50%, transparent 100%);
+  -webkit-mask-size: 100% 300%;
+  mask-size: 100% 300%;
+  -webkit-mask-position: 0% -100%;
+  mask-position: 0% -100%;
+}
+
+.burst-small .hero-logo-scan {
+  animation: scan-sweep-move 300ms ease-out;
+}
+
+.burst-big .hero-logo-scan {
+  animation: scan-sweep-move 650ms ease-out;
+}
+
+@keyframes scan-sweep-move {
+  0% {
+    opacity: 0;
+    -webkit-mask-position: 0% -100%;
+    mask-position: 0% -100%;
+  }
+  15% {
+    opacity: 0.95;
+  }
+  85% {
+    opacity: 0.95;
+  }
+  100% {
+    opacity: 0;
+    -webkit-mask-position: 0% 200%;
+    mask-position: 0% 200%;
+  }
+}
+
+/* Holographic grid-reconstruction flash */
+.hero-logo-hologram {
+  opacity: 0;
+}
+
+.burst-small .hero-logo-hologram {
+  animation: hologram-flash 260ms ease-out;
+}
+
+.burst-big .hero-logo-hologram {
+  animation: hologram-flash 650ms ease-out;
+}
+
+@keyframes hologram-flash {
+  0% {
+    opacity: 0;
+  }
+  30% {
+    opacity: 0.85;
+  }
+  60% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* Authentication brightness pulse */
+.hero-logo-authflash {
+  opacity: 0;
+  mix-blend-mode: screen;
+}
+
+.burst-small .hero-logo-authflash {
+  animation: auth-flash-small 220ms ease-out;
+}
+
+.burst-big .hero-logo-authflash {
+  animation: auth-flash-big 650ms ease-out;
+}
+
+@keyframes auth-flash-small {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  45% {
+    opacity: 0.35;
+  }
+}
+
+@keyframes auth-flash-big {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  40% {
+    opacity: 0.85;
+  }
+  60% {
+    opacity: 0.3;
+  }
+}
+
+/* Corner lock-on brackets */
+.hero-bracket {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  opacity: 0;
+  border: 2px solid var(--hero-blue);
+  pointer-events: none;
+}
+
+.hero-bracket-tl {
+  top: 0;
+  left: 0;
+  border-right: none;
+  border-bottom: none;
+}
+
+.hero-bracket-tr {
+  top: 0;
+  right: 0;
+  border-left: none;
+  border-bottom: none;
+}
+
+.hero-bracket-bl {
+  bottom: 0;
+  left: 0;
+  border-right: none;
+  border-top: none;
+}
+
+.hero-bracket-br {
+  bottom: 0;
+  right: 0;
+  border-left: none;
+  border-top: none;
+}
+
+.burst-small .hero-bracket-tl {
+  animation: bracket-lock-tl 300ms ease-out;
+}
+.burst-big .hero-bracket-tl {
+  animation: bracket-lock-tl 650ms ease-out;
+}
+.burst-small .hero-bracket-tr {
+  animation: bracket-lock-tr 300ms ease-out;
+}
+.burst-big .hero-bracket-tr {
+  animation: bracket-lock-tr 650ms ease-out;
+}
+.burst-small .hero-bracket-bl {
+  animation: bracket-lock-bl 300ms ease-out;
+}
+.burst-big .hero-bracket-bl {
+  animation: bracket-lock-bl 650ms ease-out;
+}
+.burst-small .hero-bracket-br {
+  animation: bracket-lock-br 300ms ease-out;
+}
+.burst-big .hero-bracket-br {
+  animation: bracket-lock-br 650ms ease-out;
+}
+
+@keyframes bracket-lock-tl {
+  0% {
+    opacity: 0;
+    transform: translate(-160%, -160%) scale(1.3);
+  }
+  30% {
+    opacity: 1;
+    transform: translate(-130%, -130%) scale(1);
+  }
+  70% {
+    opacity: 1;
+    transform: translate(-130%, -130%) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-130%, -130%) scale(0.9);
+  }
+}
+
+@keyframes bracket-lock-tr {
+  0% {
+    opacity: 0;
+    transform: translate(160%, -160%) scale(1.3);
+  }
+  30% {
+    opacity: 1;
+    transform: translate(130%, -130%) scale(1);
+  }
+  70% {
+    opacity: 1;
+    transform: translate(130%, -130%) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(130%, -130%) scale(0.9);
+  }
+}
+
+@keyframes bracket-lock-bl {
+  0% {
+    opacity: 0;
+    transform: translate(-160%, 160%) scale(1.3);
+  }
+  30% {
+    opacity: 1;
+    transform: translate(-130%, 130%) scale(1);
+  }
+  70% {
+    opacity: 1;
+    transform: translate(-130%, 130%) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-130%, 130%) scale(0.9);
+  }
+}
+
+@keyframes bracket-lock-br {
+  0% {
+    opacity: 0;
+    transform: translate(160%, 160%) scale(1.3);
+  }
+  30% {
+    opacity: 1;
+    transform: translate(130%, 130%) scale(1);
+  }
+  70% {
+    opacity: 1;
+    transform: translate(130%, 130%) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(130%, 130%) scale(0.9);
+  }
+}
+
+/* Double ring-confirm, big bursts only */
+.hero-ring-confirm {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  height: 130%;
+  aspect-ratio: 1 / 1;
+  border: 2px solid var(--hero-blue);
+  border-radius: 50%;
+  pointer-events: none;
+  transform: translate(-50%, -50%) scale(0.9);
+  opacity: 0;
+  animation: ring-confirm 500ms ease-out forwards;
+}
+
+.hero-ring-confirm-b {
+  animation-delay: 150ms;
+}
+
+@keyframes ring-confirm {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.9);
+  }
+  30% {
+    opacity: 0.9;
+    transform: translate(-50%, -50%) scale(1.02);
+  }
+  70% {
+    opacity: 0.6;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+/* Orbiting satellites */
+@keyframes orbit-spin {
+  from {
+    transform: rotate(var(--start-angle, 0deg));
+  }
+  to {
+    transform: rotate(calc(var(--start-angle, 0deg) + 360deg));
+  }
+}
+
+.satellite-dot {
+  background: var(--hero-blue);
+  opacity: 0.7;
+  transform: translateX(var(--radius, 0px));
+}
+
+.satellite-reacting {
+  animation: satellite-flash 400ms ease-out;
+}
+
+@keyframes satellite-flash {
+  0%,
+  100% {
+    transform: translateX(var(--radius, 0px)) scale(1);
+    opacity: 0.7;
+  }
+  50% {
+    transform: translateX(var(--radius, 0px)) scale(2);
+    opacity: 1;
+  }
+}
+
+@keyframes ring-confirm {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.9);
+  }
+  30% {
+    opacity: 0.9;
+    transform: translate(-50%, -50%) scale(1.02);
+  }
+  70% {
+    opacity: 0.6;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+/* Orbiting satellites */
+@keyframes orbit-spin {
+  from {
+    transform: rotate(var(--start-angle, 0deg));
+  }
+  to {
+    transform: rotate(calc(var(--start-angle, 0deg) + 360deg));
+  }
+}
+
+.satellite-dot {
+  background: var(--hero-blue);
+  opacity: 0.7;
+  transform: translateX(var(--radius, 0px));
+}
+
+.satellite-reacting {
+  animation: satellite-flash 400ms ease-out;
+}
+
+@keyframes satellite-flash {
+  0%,
+  100% {
+    transform: translateX(var(--radius, 0px)) scale(1);
+    opacity: 0.7;
+  }
+  50% {
+    transform: translateX(var(--radius, 0px)) scale(2);
+    opacity: 1;
   }
 }
 
