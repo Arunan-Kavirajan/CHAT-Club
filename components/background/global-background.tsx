@@ -404,7 +404,10 @@ export function GlobalBackground() {
   if (!viewport) return null;
 
   return (
-    <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+    <div
+      className="fixed inset-0 -z-10 overflow-hidden pointer-events-none"
+      style={{ transform: "translateZ(0)" }}
+    >
       {theme === "dark" ? (
         <RedTeamLayer viewport={viewport} />
       ) : (

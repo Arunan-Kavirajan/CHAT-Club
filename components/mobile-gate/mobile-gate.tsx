@@ -1,19 +1,58 @@
 "use client";
 
+import { useEffect } from "react";
 import { ChatLogoShape } from "@/components/home/chat-logo-shape";
+
+const MOBILE_BREAKPOINT = "(max-width: 767px)";
 
 /**
  * Blocks mobile/tablet viewports entirely while mobile optimization is
- * still in progress. Pure CSS breakpoint (Tailwind's `md:hidden`), not
- * JS-detected — applies at first paint with zero hydration risk. Reuses
- * the admin panel's violet identity since this is conceptually the same
- * kind of "third space," not the public red/blue site.
+ * still in progress. Beyond just visually covering the page, this also
+ * locks html/body scroll outright while active — a plain CSS overlay
+ * alone still leaves the real page scrollable underneath it, and fast
+ * scroll momentum on mobile browsers can visibly lag a `position: fixed`
+ * layer, letting the real content peek through underneath.
  */
 export function MobileGate() {
+  useEffect(() => {
+    const mql = window.matchMedia(MOBILE_BREAKPOINT);
+
+    function applyLock(isMobile: boolean) {
+      if (isMobile) {
+        document.documentElement.style.overflow = "hidden";
+        document.body.style.overflow = "hidden";
+        document.body.style.touchAction = "none";
+      } else {
+        document.documentElement.style.overflow = "";
+        document.body.style.overflow = "";
+        document.body.style.touchAction = "";
+      }
+    }
+
+    applyLock(mql.matches);
+    function handleChange(e: MediaQueryListEvent) {
+      applyLock(e.matches);
+    }
+    mql.addEventListener("change", handleChange);
+
+    return () => {
+      mql.removeEventListener("change", handleChange);
+      document.documentElement.style.overflow = "";
+      document.body.style.overflow = "";
+      document.body.style.touchAction = "";
+    };
+  }, []);
+
   return (
     <div
       className="admin-scope fixed inset-0 z-[9999] flex md:hidden flex-col items-center justify-center px-8 text-center"
-      style={{ backgroundColor: "var(--admin-bg)", color: "var(--admin-foreground)" }}
+      style={{
+        backgroundColor: "var(--admin-bg)",
+        color: "var(--admin-foreground)",
+        transform: "translateZ(0)",
+        touchAction: "none",
+        overscrollBehavior: "none",
+      }}
     >
       <div className="w-36 sm:w-44 gate-logo-pulse">
         <ChatLogoShape fill="var(--admin-accent)" />
