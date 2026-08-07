@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { TeamSection } from "@/components/team/team-section";
 import type { AdminMember, AdminTeamCategory } from "@/lib/team-types";
 import { subscribeCategories, subscribeMembers } from "@/lib/firebase-team";
+import { HoverScramble } from "@/components/motion/hover-scramble";
 
 export default function TeamPage() {
   const [categories, setCategories] = useState<AdminTeamCategory[]>([]);
@@ -22,11 +23,11 @@ export default function TeamPage() {
     <section className="mx-auto max-w-6xl px-6 py-24">
       <p className="font-mono text-sm text-accent mb-4">THE PEOPLE</p>
       <h1 className="text-4xl sm:text-5xl font-semibold tracking-tight max-w-2xl">
-        Team
+        <HoverScramble>Active Operators</HoverScramble>
       </h1>
       <p className="mt-5 text-foreground/70 max-w-xl">
-        The people running CHAT — mostly security, with room for the members
-        building across other tech too.
+        Meet the operators behind the operations. Hover over any node to
+        reveal the verified identity of our active personnel.
       </p>
 
       <div className="mt-16">
@@ -35,10 +36,11 @@ export default function TeamPage() {
             Team info coming soon.
           </p>
         )}
-        {categories.map((category) => (
+        {categories.map((category, index) => (
           <TeamSection
             key={category.id}
             category={category}
+            index={index}
             members={members.filter((m) => m.categoryId === category.id)}
           />
         ))}

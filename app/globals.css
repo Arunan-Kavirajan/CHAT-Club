@@ -891,3 +891,712 @@ body {
     opacity: 0.9;
   }
 }
+
+/* Team card cover glitch reveal (Red Team) */
+/* Team card cover glitch reveal (Red Team) */
+.card-cover-base {
+  transform: scale(1.5); /* generous margin — skewing a tall element
+  displaces its edges far more than translate alone; this prevents any
+  peek-through of the real photo underneath during the shake/skew */
+}
+
+.card-cover-ghost {
+  opacity: 0;
+  mix-blend-mode: screen;
+}
+
+.card-cover-ghost-a {
+  filter: hue-rotate(260deg) saturate(3);
+}
+
+.card-cover-ghost-b {
+  filter: hue-rotate(320deg) saturate(3);
+}
+
+.card-cover-ghost-c {
+  filter: hue-rotate(200deg) saturate(2.5);
+}
+
+.card-cover-slice-a,
+.card-cover-slice-b {
+  opacity: 0;
+}
+
+.card-cover-noise {
+  opacity: 0;
+}
+
+.card-scan-bar {
+  height: 5px;
+  top: -10%;
+  opacity: 0;
+  background: linear-gradient(
+    to right,
+    transparent,
+    #ef4444 20%,
+    #fca5a5 50%,
+    #ef4444 80%,
+    transparent
+  );
+  filter: drop-shadow(0 0 6px #ef4444);
+}
+
+.card-hover .card-cover-base:not(.card-cover-ghost):not(.card-cover-slice-a):not(.card-cover-slice-b):not(.card-cover-noise) {
+  animation: card-shake 750ms ease-out;
+}
+
+.card-hover .card-cover-ghost-a {
+  animation: card-ghost-a 750ms ease-out;
+}
+
+.card-hover .card-cover-ghost-b {
+  animation: card-ghost-b 750ms ease-out;
+}
+
+.card-hover .card-cover-ghost-c {
+  animation: card-ghost-c 750ms ease-out;
+}
+
+.card-hover .card-cover-slice-a {
+  animation: card-slice-a 750ms steps(3, jump-none);
+}
+
+.card-hover .card-cover-slice-b {
+  animation: card-slice-b 750ms steps(3, jump-none);
+}
+
+.card-hover .card-cover-noise {
+  animation: card-noise-flash 750ms ease-out;
+}
+
+.card-hover .card-scan-bar {
+  animation: card-scan-sweep 750ms ease-out;
+}
+
+.card-hover.card-cover-stack {
+  animation: card-stack-fade 750ms ease-out forwards;
+}
+
+@keyframes card-shake {
+  0% {
+    transform: scale(1.5) translate(0, 0) skewX(0deg);
+  }
+  8% {
+    transform: scale(1.5) translate(-10px, 2px) skewX(-9deg);
+  }
+  16% {
+    transform: scale(1.5) translate(14px, -3px) skewX(7deg);
+  }
+  24% {
+    transform: scale(1.5) translate(-8px, 1px) skewX(-5deg);
+  }
+  32% {
+    transform: scale(1.5) translate(6px, 0) skewX(3deg);
+  }
+  40% {
+    transform: scale(1.5) translate(-3px, 0) skewX(-1deg);
+  }
+  48%,
+  100% {
+    transform: scale(1.5) translate(0, 0) skewX(0deg);
+  }
+}
+
+@keyframes card-ghost-a {
+  0%,
+  12% {
+    opacity: 0;
+    transform: scale(1.5) translate(0, 0);
+  }
+  20% {
+    opacity: 0.65;
+    transform: scale(1.5) translate(8px, -4px);
+  }
+  32% {
+    opacity: 0.3;
+    transform: scale(1.5) translate(-5px, 3px);
+  }
+  44%,
+  100% {
+    opacity: 0;
+    transform: scale(1.5) translate(0, 0);
+  }
+}
+
+@keyframes card-ghost-b {
+  0%,
+  18% {
+    opacity: 0;
+    transform: scale(1.5) translate(0, 0);
+  }
+  26% {
+    opacity: 0.6;
+    transform: scale(1.5) translate(-9px, 4px);
+  }
+  38% {
+    opacity: 0.28;
+    transform: scale(1.5) translate(6px, -3px);
+  }
+  50%,
+  100% {
+    opacity: 0;
+    transform: scale(1.5) translate(0, 0);
+  }
+}
+
+@keyframes card-ghost-c {
+  0%,
+  55% {
+    opacity: 0;
+    transform: scale(1.5) translate(0, 0);
+  }
+  63% {
+    opacity: 0.5;
+    transform: scale(1.5) translate(7px, 3px);
+  }
+  74% {
+    opacity: 0.2;
+    transform: scale(1.5) translate(-5px, -2px);
+  }
+  85%,
+  100% {
+    opacity: 0;
+    transform: scale(1.5) translate(0, 0);
+  }
+}
+
+@keyframes card-slice-a {
+  0%,
+  35% {
+    opacity: 0;
+    transform: scale(1.5) translateX(0);
+  }
+  42% {
+    opacity: 1;
+    transform: scale(1.5) translateX(16px);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.5) translateX(-14px);
+  }
+  58% {
+    opacity: 0.5;
+    transform: scale(1.5) translateX(8px);
+  }
+  66%,
+  100% {
+    opacity: 0;
+    transform: scale(1.5) translateX(0);
+  }
+}
+
+@keyframes card-slice-b {
+  0%,
+  50% {
+    opacity: 0;
+    transform: scale(1.5) translateX(0);
+  }
+  57% {
+    opacity: 1;
+    transform: scale(1.5) translateX(-15px);
+  }
+  65% {
+    opacity: 0.75;
+    transform: scale(1.5) translateX(12px);
+  }
+  73% {
+    opacity: 0.4;
+    transform: scale(1.5) translateX(-7px);
+  }
+  82%,
+  100% {
+    opacity: 0;
+    transform: scale(1.5) translateX(0);
+  }
+}
+
+@keyframes card-noise-flash {
+  0%,
+  60% {
+    opacity: 0;
+  }
+  68% {
+    opacity: 0.9;
+  }
+  78% {
+    opacity: 0.45;
+  }
+  88%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes card-scan-sweep {
+  0%,
+  10% {
+    opacity: 0;
+    top: -10%;
+  }
+  15% {
+    opacity: 0.9;
+  }
+  55% {
+    opacity: 0.7;
+    top: 105%;
+  }
+  62%,
+  100% {
+    opacity: 0;
+    top: 105%;
+  }
+}
+
+@keyframes card-stack-fade {
+  0%,
+  85% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* Off-hover reversal — a short glitch-settle instead of an instant snap */
+.card-cover-stack.card-leaving {
+  animation: card-stack-return 420ms ease-out forwards;
+}
+
+@keyframes card-stack-return {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.card-leaving .card-cover-base:not(.card-cover-ghost):not(.card-cover-slice-a):not(.card-cover-slice-b):not(.card-cover-noise) {
+  animation: card-settle 420ms ease-out;
+}
+
+@keyframes card-settle {
+  0% {
+    transform: scale(1.5) translate(0, 0) skewX(0deg);
+  }
+  35% {
+    transform: scale(1.5) translate(4px, 0) skewX(2deg);
+  }
+  65% {
+    transform: scale(1.5) translate(-2px, 0) skewX(-1deg);
+  }
+  100% {
+    transform: scale(1.5) translate(0, 0) skewX(0deg);
+  }
+}
+
+.card-leaving .card-cover-ghost-a {
+  animation: card-ghost-return 420ms ease-out;
+}
+
+@keyframes card-ghost-return {
+  0% {
+    opacity: 0;
+    transform: scale(1.5) translate(0, 0);
+  }
+  30% {
+    opacity: 0.5;
+    transform: scale(1.5) translate(-6px, 3px);
+  }
+  60% {
+    opacity: 0.2;
+    transform: scale(1.5) translate(4px, -2px);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.5) translate(0, 0);
+  }
+}
+
+.card-leaving .card-cover-noise {
+  animation: card-noise-return 420ms ease-out;
+}
+
+@keyframes card-noise-return {
+  0% {
+    opacity: 0;
+  }
+  25% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 0.2;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* Team card — Blue Team idle + hover reveal */
+.blue-laser-sweep {
+  height: 1.5px;
+  top: 20%;
+  background: linear-gradient(
+    to right,
+    transparent,
+    #22d3ee 30%,
+    #67e8f9 50%,
+    #22d3ee 70%,
+    transparent
+  );
+  filter: drop-shadow(0 0 4px #22d3ee);
+  opacity: 0.75;
+  animation: blue-laser-sweep-move 3.5s ease-in-out infinite;
+}
+
+.blue-laser-sweep.card-hover,
+.blue-laser-sweep.card-leaving {
+  animation: none;
+  opacity: 0;
+}
+
+@keyframes blue-laser-sweep-move {
+  0%,
+  100% {
+    top: 20%;
+  }
+  50% {
+    top: 78%;
+  }
+}
+
+/* Full-frame target-lock flash */
+.blue-lock-flash-full {
+  background: radial-gradient(circle at 50% 38%, rgba(236, 254, 255, 0.9), transparent 70%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.blue-lock-flash-full.card-hover {
+  animation: blue-lock-flash-full-kf 220ms ease-out;
+}
+
+@keyframes blue-lock-flash-full-kf {
+  0% {
+    opacity: 0;
+  }
+  25% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* Holographic verification grid, flickers briefly over the reveal */
+.blue-grid-flicker {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.blue-grid-flicker.card-hover {
+  animation: blue-grid-flicker-kf 400ms steps(4, jump-none) 180ms;
+}
+
+@keyframes blue-grid-flicker-kf {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.5;
+  }
+  45% {
+    opacity: 0.15;
+  }
+  70% {
+    opacity: 0.4;
+  }
+}
+
+/* Fast secondary scan sweep during the reveal, distinct from the idle sweep */
+.blue-reveal-scan {
+  height: 2px;
+  top: 0;
+  background: linear-gradient(to right, transparent, #ecfeff 35%, #ecfeff 65%, transparent);
+  filter: drop-shadow(0 0 6px #67e8f9);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.blue-reveal-scan.card-hover {
+  animation: blue-reveal-scan-kf 550ms ease-out 120ms;
+}
+
+@keyframes blue-reveal-scan-kf {
+  0% {
+    top: 0%;
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  85% {
+    opacity: 0.8;
+  }
+  100% {
+    top: 100%;
+    opacity: 0;
+  }
+}
+
+/* HUD corner brackets — now slide in from outside the card, not just fade */
+.blue-hud-bracket {
+  width: 18px;
+  height: 18px;
+  opacity: 0;
+  border: 2px solid #22d3ee;
+  filter: drop-shadow(0 0 3px #22d3ee);
+}
+
+.blue-hud-tl {
+  top: 8px;
+  left: 8px;
+  border-right: none;
+  border-bottom: none;
+  transform: translate(-16px, -16px);
+}
+
+.blue-hud-tr {
+  top: 8px;
+  right: 8px;
+  border-left: none;
+  border-bottom: none;
+  transform: translate(16px, -16px);
+}
+
+.blue-hud-bl {
+  bottom: 8px;
+  left: 8px;
+  border-right: none;
+  border-top: none;
+  transform: translate(-16px, 16px);
+}
+
+.blue-hud-br {
+  bottom: 8px;
+  right: 8px;
+  border-left: none;
+  border-top: none;
+  transform: translate(16px, 16px);
+}
+
+.blue-hud-tl.card-hover {
+  animation: blue-hud-in-tl 320ms ease-out 280ms forwards;
+}
+.blue-hud-tr.card-hover {
+  animation: blue-hud-in-tr 320ms ease-out 280ms forwards;
+}
+.blue-hud-bl.card-hover {
+  animation: blue-hud-in-bl 320ms ease-out 280ms forwards;
+}
+.blue-hud-br.card-hover {
+  animation: blue-hud-in-br 320ms ease-out 280ms forwards;
+}
+
+@keyframes blue-hud-in-tl {
+  0% {
+    opacity: 0;
+    transform: translate(-16px, -16px);
+  }
+  60% {
+    opacity: 1;
+    transform: translate(2px, 2px);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(0, 0);
+  }
+}
+@keyframes blue-hud-in-tr {
+  0% {
+    opacity: 0;
+    transform: translate(16px, -16px);
+  }
+  60% {
+    opacity: 1;
+    transform: translate(-2px, 2px);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(0, 0);
+  }
+}
+@keyframes blue-hud-in-bl {
+  0% {
+    opacity: 0;
+    transform: translate(-16px, 16px);
+  }
+  60% {
+    opacity: 1;
+    transform: translate(2px, -2px);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(0, 0);
+  }
+}
+@keyframes blue-hud-in-br {
+  0% {
+    opacity: 0;
+    transform: translate(16px, 16px);
+  }
+  60% {
+    opacity: 1;
+    transform: translate(-2px, -2px);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(0, 0);
+  }
+}
+
+.blue-hud-bracket.card-leaving {
+  animation: blue-hud-out 220ms ease-out forwards;
+}
+
+@keyframes blue-hud-out {
+  from {
+    opacity: 1;
+    transform: translate(0, 0);
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* Circular iris-wipe — a separate photo copy revealed via clip-path,
+   not an SVG mask. Animating an SVG circle's `r` attribute through CSS
+   is unreliable across browsers; clip-path is standard, well-supported,
+   and reliably animatable. */
+.card-iris-reveal {
+  clip-path: circle(0px at 50% 38%);
+}
+
+.card-iris-reveal.card-hover {
+  animation: iris-grow-clip 260ms ease-out 150ms forwards;
+}
+
+.card-iris-reveal.card-leaving {
+  animation: iris-shrink-clip 380ms ease-out forwards;
+}
+
+@keyframes iris-grow-clip {
+  from {
+    clip-path: circle(0px at 50% 38%);
+  }
+  to {
+    clip-path: circle(260px at 50% 38%);
+  }
+}
+
+@keyframes iris-shrink-clip {
+  from {
+    clip-path: circle(260px at 50% 38%);
+  }
+  to {
+    clip-path: circle(0px at 50% 38%);
+  }
+}
+
+/* Four HUD corner brackets over the photo, after the wipe completes */
+.blue-hud-bracket {
+  width: 16px;
+  height: 16px;
+  opacity: 0;
+  border: 2px solid #22d3ee;
+  filter: drop-shadow(0 0 3px #22d3ee);
+}
+
+.blue-hud-tl {
+  top: 8px;
+  left: 8px;
+  border-right: none;
+  border-bottom: none;
+}
+
+.blue-hud-tr {
+  top: 8px;
+  right: 8px;
+  border-left: none;
+  border-bottom: none;
+}
+
+.blue-hud-bl {
+  bottom: 8px;
+  left: 8px;
+  border-right: none;
+  border-top: none;
+}
+
+.blue-hud-br {
+  bottom: 8px;
+  right: 8px;
+  border-left: none;
+  border-top: none;
+}
+
+.blue-hud-bracket.card-hover {
+  animation: blue-hud-in 300ms ease-out 350ms forwards;
+}
+
+.blue-hud-bracket.card-leaving {
+  animation: blue-hud-out 200ms ease-out forwards;
+}
+
+@keyframes blue-hud-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes blue-hud-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* Authorization scanline across the bottom info panel */
+.blue-scanbar {
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgba(34, 211, 238, 0.15) 45%,
+    rgba(34, 211, 238, 0.15) 55%,
+    transparent
+  );
+  transform: translateX(-100%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.blue-scanbar.card-hover {
+  animation: blue-scanbar-kf 500ms ease-out 100ms;
+}
+
+@keyframes blue-scanbar-kf {
+  0% {
+    transform: translateX(-100%);
+    opacity: 0.9;
+  }
+  100% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
