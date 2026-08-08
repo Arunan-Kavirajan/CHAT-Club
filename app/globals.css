@@ -1600,3 +1600,16 @@ body {
     opacity: 0;
   }
 }
+
+.event-card-glow {
+  transition:
+    transform 200ms ease-out,
+    border-color 200ms ease-out,
+    box-shadow 200ms ease-out;
+}
+
+.event-card-glow:hover {
+  transform: translateY(-3px);
+  border-color: color-mix(in srgb, var(--accent) 50%, transparent);
+  box-shadow: 0 0 15px color-mix(in srgb, var(--accent) 15%, transparent);
+}
