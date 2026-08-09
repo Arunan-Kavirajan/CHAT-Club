@@ -1608,8 +1608,207 @@ body {
     box-shadow 200ms ease-out;
 }
 
-.event-card-glow:hover {
-  transform: translateY(-3px);
+.cyber-card-hover {
+  transition:
+    transform 200ms ease-out,
+    border-color 200ms ease-out,
+    box-shadow 200ms ease-out;
+}
+
+.cyber-card-hover:hover {
+  transform: translateY(-4px);
   border-color: color-mix(in srgb, var(--accent) 50%, transparent);
-  box-shadow: 0 0 15px color-mix(in srgb, var(--accent) 15%, transparent);
+  box-shadow: 0 0 20px color-mix(in srgb, var(--accent) 15%, transparent);
+}
+
+.dossier-card-glow:hover {
+  transform: translateY(-4px);
+  border-color: color-mix(in srgb, var(--foreground) 30%, transparent);
+  box-shadow: 0 0 20px color-mix(in srgb, var(--accent) 15%, transparent);
+}
+
+/* Shared card hover scan effects — Events + Gallery, both themes */
+.card-scan-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  top: -10%;
+  opacity: 0;
+  background: linear-gradient(
+    to right,
+    transparent,
+    var(--accent) 40%,
+    #ffffff 50%,
+    var(--accent) 60%,
+    transparent
+  );
+  filter: drop-shadow(0 0 6px var(--accent));
+}
+
+.group:hover .card-scan-line {
+  animation: card-scan-sweep 700ms ease-out;
+}
+
+@keyframes card-scan-sweep {
+  0% {
+    top: -10%;
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  85% {
+    opacity: 0.8;
+  }
+  100% {
+    top: 105%;
+    opacity: 0;
+  }
+}
+
+/* Red Team — color-dodge tint pulse + a glitch slice band that drifts down */
+.card-tint-flash {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  mix-blend-mode: color-dodge;
+  background: var(--accent);
+}
+
+.group:hover .card-tint-flash {
+  animation: card-tint-flash-kf 500ms steps(3, jump-none);
+}
+
+@keyframes card-tint-flash-kf {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  25% {
+    opacity: 0.25;
+  }
+  55% {
+    opacity: 0.08;
+  }
+  75% {
+    opacity: 0.18;
+  }
+}
+
+.card-glitch-slice {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 14%;
+  opacity: 0;
+  background: var(--accent);
+  mix-blend-mode: overlay;
+}
+
+.group:hover .card-glitch-slice {
+  animation: card-glitch-slice-kf 600ms steps(4, jump-none);
+}
+
+@keyframes card-glitch-slice-kf {
+  0% {
+    opacity: 0;
+    top: 20%;
+    transform: translateX(0);
+  }
+  20% {
+    opacity: 0.6;
+    top: 35%;
+    transform: translateX(-4%);
+  }
+  45% {
+    opacity: 0.4;
+    top: 55%;
+    transform: translateX(3%);
+  }
+  70% {
+    opacity: 0.5;
+    top: 70%;
+    transform: translateX(-2%);
+  }
+  100% {
+    opacity: 0;
+    top: 80%;
+    transform: translateX(0);
+  }
+}
+
+/* Blue Team — holographic grid-flicker + expanding "ping" from center */
+.card-grid-overlay {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  background-image: repeating-linear-gradient(
+      0deg,
+      color-mix(in srgb, var(--accent) 60%, transparent) 0px,
+      color-mix(in srgb, var(--accent) 60%, transparent) 1px,
+      transparent 1px,
+      transparent 10px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--accent) 60%, transparent) 0px,
+      color-mix(in srgb, var(--accent) 60%, transparent) 1px,
+      transparent 1px,
+      transparent 10px
+    );
+}
+
+.group:hover .card-grid-overlay {
+  animation: card-grid-flicker-kf 700ms steps(5, jump-none);
+}
+
+@keyframes card-grid-flicker-kf {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.35;
+  }
+  40% {
+    opacity: 0.1;
+  }
+  60% {
+    opacity: 0.3;
+  }
+  80% {
+    opacity: 0.05;
+  }
+}
+
+.card-ping {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid var(--accent);
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.5);
+}
+
+.group:hover .card-ping {
+  animation: card-ping-kf 700ms ease-out;
+}
+
+@keyframes card-ping-kf {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.3);
+  }
+  20% {
+    opacity: 0.9;
+    transform: translate(-50%, -50%) scale(0.6);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(3.5);
+  }
 }

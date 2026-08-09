@@ -1,6 +1,8 @@
 import type { AdminEvent } from "@/lib/event-types";
 import type { EventStatus } from "@/lib/event-status";
 import { formatEventDate } from "@/lib/event-status";
+import { CyberCardCorners } from "@/components/ui/cyber-card-corners";
+import { CardScanEffect } from "@/components/ui/card-scan-effect";
 
 const STATUS_LABEL: Record<EventStatus, string> = {
   live: "LIVE",
@@ -20,10 +22,8 @@ export function EventGridCard({
   return (
     <button
       onClick={onOpen}
-      className="event-card-glow group text-left w-full rounded-xl border border-foreground/10 bg-muted/30 overflow-hidden flex flex-col"
+      className="cyber-card-hover group relative text-left w-full rounded-xl border border-foreground/10 bg-muted overflow-hidden flex flex-col"
     >
-      {/* Fixed pixel height, not a percentage — guarantees identical
-          sizing across every card regardless of source image dimensions. */}
       <div className="relative h-[200px] w-full overflow-hidden bg-muted shrink-0">
         {event.thumbnailUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -40,9 +40,7 @@ export function EventGridCard({
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
         <span
           className={`absolute top-3 right-3 font-mono text-[10px] tracking-wider px-2 py-1 rounded flex items-center ${
-            status === "live"
-              ? "bg-accent text-background"
-              : "bg-black/60 text-foreground/80 backdrop-blur-sm"
+            status === "live" ? "bg-accent text-background" : "bg-black/60 text-white backdrop-blur-sm"
           }`}
         >
           {status === "live" && (
@@ -50,6 +48,7 @@ export function EventGridCard({
           )}
           [{STATUS_LABEL[status]}]
         </span>
+        <CardScanEffect />
       </div>
 
       <div className="p-4 flex flex-col gap-2">
@@ -69,6 +68,8 @@ export function EventGridCard({
           {formatEventDate(event.date)} &middot; TBA
         </p>
       </div>
+
+      <CyberCardCorners />
     </button>
   );
 }
