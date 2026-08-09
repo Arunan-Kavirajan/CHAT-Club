@@ -1,8 +1,8 @@
 import type { AdminEvent } from "@/lib/event-types";
 import type { EventStatus } from "@/lib/event-status";
-import { formatEventDate } from "@/lib/event-status";
 import { CyberCardCorners } from "@/components/ui/cyber-card-corners";
 import { CardScanEffect } from "@/components/ui/card-scan-effect";
+import { formatEventDate, formatEventTime } from "@/lib/event-status";
 
 const STATUS_LABEL: Record<EventStatus, string> = {
   live: "LIVE",
@@ -65,7 +65,7 @@ export function EventGridCard({
         )}
 
         <p className="font-mono text-xs text-accent mt-1">
-          {formatEventDate(event.date)} &middot; TBA
+          {formatEventDate(event.date)} &middot; {formatEventTime(event.time)}
         </p>
       </div>
 

@@ -27,3 +27,12 @@ export function formatEventDate(dateStr: string) {
     .toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })
     .toUpperCase();
 }
+
+export function formatEventTime(time: string) {
+  if (!time) return "TBA";
+  const [hoursStr, minutesStr] = time.split(":");
+  const hours = parseInt(hoursStr, 10);
+  const period = hours >= 12 ? "PM" : "AM";
+  const displayHours = hours % 12 === 0 ? 12 : hours % 12;
+  return `${displayHours}:${minutesStr} ${period}`;
+}

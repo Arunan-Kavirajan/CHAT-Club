@@ -16,6 +16,7 @@ type Props = {
 const EMPTY_FORM = {
   name: "",
   date: "",
+  time: "",
   location: "",
   description: "",
   thumbnailUrl: "",
@@ -39,6 +40,7 @@ export function EventDialog({ open, initialData, onClose, onSave }: Props) {
       setForm({
         name: initialData.name,
         date: initialData.date,
+        time: initialData.time,
         location: initialData.location,
         description: initialData.description,
         thumbnailUrl: initialData.thumbnailUrl || "",
@@ -167,6 +169,7 @@ export function EventDialog({ open, initialData, onClose, onSave }: Props) {
       id: eventIdRef.current,
       name: form.name.trim(),
       date: form.date,
+      time: form.time,
       location: form.location.trim(),
       description: form.description.trim(),
       thumbnailUrl: form.thumbnailUrl || null,
@@ -206,6 +209,15 @@ export function EventDialog({ open, initialData, onClose, onSave }: Props) {
               type="date"
               value={form.date}
               onChange={(e) => setForm({ ...form, date: e.target.value })}
+              className="admin-input"
+            />
+          </Field>
+
+          <Field label="Time">
+            <input
+              type="time"
+              value={form.time}
+              onChange={(e) => setForm({ ...form, time: e.target.value })}
               className="admin-input"
             />
           </Field>

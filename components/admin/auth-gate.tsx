@@ -14,22 +14,17 @@ type Status = "loading" | "signed-out" | "unauthorized" | "authorized";
 
 export function AuthGate({ children }: { children: ReactNode }) {
   const [status, setStatus] = useState<Status>("loading");
-  const [user, setUser] = useState<User | null>(null);
   const [signInError, setSignInError] = useState<string | null>(null);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser: User | null) => {
       if (!firebaseUser) {
-        setUser(null);
         setStatus("signed-out");
         return;
       }
-      setUser(firebaseUser);
       if (isAuthorizedAdmin(firebaseUser.email)) {
         setStatus("authorized");
       } else {
-        // Signed in with the wrong account — kick them out immediately,
-        // don't leave an unauthorized session sitting around.
         signOut(auth);
         setStatus("unauthorized");
       }
@@ -46,10 +41,6 @@ export function AuthGate({ children }: { children: ReactNode }) {
     }
   }
 
-  async function handleSignOut() {
-    await signOut(auth);
-  }
-
   if (status === "loading") {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -61,19 +52,7 @@ export function AuthGate({ children }: { children: ReactNode }) {
   }
 
   if (status === "authorized") {
-    return (
-      <div>
-        <div className="flex justify-end px-6 pt-4">
-          <button
-            onClick={handleSignOut}
-            className="font-mono text-xs text-[var(--admin-foreground)]/50 hover:text-[var(--admin-accent)] transition-colors"
-          >
-            Sign out ({user?.email})
-          </button>
-        </div>
-        {children}
-      </div>
-    );
+    return <>{children}</>;
   }
 
   return (
@@ -101,9 +80,7 @@ export function AuthGate({ children }: { children: ReactNode }) {
       </button>
 
       {signInError && (
-        <p className="font-mono text-xs text-[var(--admin-accent)]">
-          {signInError}
-        </p>
+        <p className="font-mono text-xs text-[var(--admin-accent)]">{signInError}</p>
       )}
     </div>
   );

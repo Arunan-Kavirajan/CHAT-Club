@@ -2,17 +2,21 @@
 
 import { useState } from "react";
 import { Reorder } from "framer-motion";
-import type { AdminTeamCategory, AdminTeam } from "@/lib/team-types";
+import type { AdminTeamCategory, AdminTeam, AdminMember } from "@/lib/team-types";
+import { useConfirm } from "@/lib/hooks/use-confirm";
+import { ConfirmDialog } from "@/components/admin/confirm-dialog";
 
 type Props = {
   categories: AdminTeamCategory[];
+  members: AdminMember[];
   onChange: (categories: AdminTeamCategory[]) => void;
   onDeleteCategory: (id: string) => void;
 };
 
-export function CategoryManager({ categories, onChange, onDeleteCategory }: Props) {
+export function CategoryManager({ categories, members, onChange, onDeleteCategory }: Props) {
   const [newCategoryName, setNewCategoryName] = useState("");
   const [newTeamNameByCategory, setNewTeamNameByCategory] = useState<Record<string, string>>({});
+  const { confirm, confirmProps, handleConfirm, handleCancel } = useConfirm();
 
   function addCategory() {
     const name = newCategoryName.trim();
@@ -35,7 +39,20 @@ export function CategoryManager({ categories, onChange, onDeleteCategory }: Prop
     setNewTeamNameByCategory((prev) => ({ ...prev, [categoryId]: "" }));
   }
 
-  function deleteTeam(categoryId: string, teamId: string) {
+  async function deleteTeam(categoryId: string, teamId: string) {
+    const team = categories.find((c) => c.id === categoryId)?.teams.find((t) => t.id === teamId);
+    const memberCount = members.filter((m) => m.teamId === teamId).length;
+    const ok = await confirm({
+      title: "Delete team?",
+      message:
+        memberCount > 0
+          ? `"${team?.name}" has ${memberCount} member(s) assigned to it. Deleting it will unassign them (they'll stay under the category, without a team).\n\nThis can't be undone.`
+          : `Delete "${team?.name}"? This can't be undone.`,
+      confirmLabel: "Delete",
+      danger: true,
+    });
+    if (!ok) return;
+
     onChange(
       categories.map((c) =>
         c.id === categoryId
@@ -77,7 +94,19 @@ export function CategoryManager({ categories, onChange, onDeleteCategory }: Prop
             <div className="flex items-center justify-between">
               <span className="font-semibold">{category.name}</span>
               <button
-                onClick={() => onDeleteCategory(category.id)}
+                onClick={async () => {
+                  const memberCount = members.filter((m) => m.categoryId === category.id).length;
+                  const ok = await confirm({
+                    title: "Delete category?",
+                    message:
+                      memberCount > 0
+                        ? `"${category.name}" has ${memberCount} member(s) assigned. Deleting it will make them disappear from the public Team page until reassigned.\n\nThis can't be undone.`
+                        : `Delete "${category.name}"? This can't be undone.`,
+                    confirmLabel: "Delete",
+                    danger: true,
+                  });
+                  if (ok) onDeleteCategory(category.id);
+                }}
                 className="font-mono text-xs text-[var(--admin-foreground)]/40 hover:text-[var(--admin-accent)] transition-colors"
               >
                 Delete
@@ -135,6 +164,16 @@ export function CategoryManager({ categories, onChange, onDeleteCategory }: Prop
           No categories yet — add one above.
         </p>
       )}
+
+      <ConfirmDialog
+        open={!!confirmProps}
+        title={confirmProps?.title ?? ""}
+        message={confirmProps?.message ?? ""}
+        confirmLabel={confirmProps?.confirmLabel}
+        danger={confirmProps?.danger}
+        onConfirm={handleConfirm}
+        onCancel={handleCancel}
+      />
     </div>
   );
 }

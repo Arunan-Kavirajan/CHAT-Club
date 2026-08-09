@@ -24,6 +24,7 @@ export function subscribeEvents(callback: (events: AdminEvent[]) => void) {
             id: d.id,
             name: data.name as string,
             date: (data.date ?? "") as string,
+            time: (data.time ?? "") as string,
             location: (data.location ?? "") as string,
             description: (data.description ?? "") as string,
             thumbnailUrl: (data.thumbnailUrl ?? null) as string | null,
