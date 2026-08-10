@@ -8,6 +8,7 @@ import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { GlobalBackground } from "@/components/background/global-background";
 import { MobileGate } from "@/components/mobile-gate/mobile-gate";
+import { SiteChrome } from "@/components/layout/site-chrome";
 
 export const metadata: Metadata = {
   title: "CHAT — Community of Hackers and Advanced Technologists",
@@ -33,9 +34,7 @@ export default function RootLayout({
         <MobileGate />
         <ThemeProvider>
           <GlobalBackground />
-          <Navbar />
-          <main className="flex-1">{children}</main>
-          <Footer />
+          <SiteChrome>{children}</SiteChrome>
         </ThemeProvider>
       </body>
     </html>
