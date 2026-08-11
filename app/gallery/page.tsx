@@ -28,8 +28,8 @@ export default function GalleryPage() {
             <HoverScramble>Archive Vault</HoverScramble>
           </h1>
           <p className="mt-5 text-foreground/70 max-w-xl">
-            Access verified visual records of past operations. Select any
-            mission dossier to unseal the full media archive.
+            Access verified visual records of past operations. <br />
+            Select any mission dossier to unseal the full media archive.
           </p>
         </div>
 

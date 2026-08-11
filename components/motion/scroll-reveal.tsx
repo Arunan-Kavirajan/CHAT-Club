@@ -5,34 +5,38 @@ import type { ReactNode } from "react";
 
 type ScrollRevealProps = {
   children: ReactNode;
-  /** Delay before this element starts revealing, in seconds. */
   delay?: number;
-  /** How far to rise from, in pixels. */
   distance?: number;
   className?: string;
 };
 
 /**
- * Fades + rises content in as it scrolls into view. Use this instead of
- * writing one-off scroll animations per page — every section, card, and
- * grid item across the site should go through this same component so the
- * motion language stays consistent.
- *
- * Respects prefers-reduced-motion: if set, content just appears, no motion.
+ * CRISP CYBER REVEAL: Smooth fade and subtle brightness shift.
+ * No scale or heavy blur to ensure text remains perfectly anti-aliased.
+ * Re-triggers smoothly on scroll up and down.
  */
 export function ScrollReveal({
   children,
   delay = 0,
-  distance = 24,
+  distance = 30, // Clean, standard travel distance
   className,
 }: ScrollRevealProps) {
   const shouldReduceMotion = useReducedMotion();
 
   const variants: Variants = shouldReduceMotion
-    ? { hidden: { opacity: 1, y: 0 }, visible: { opacity: 1, y: 0 } }
+    ? { hidden: { opacity: 0 }, visible: { opacity: 1 } }
     : {
-        hidden: { opacity: 0, y: distance },
-        visible: { opacity: 1, y: 0 },
+        hidden: { 
+          opacity: 0, 
+          y: distance, 
+          // Very subtle blur and slight over-exposure for the "decryption" feel
+          filter: "blur(4px) brightness(1.2)" 
+        },
+        visible: { 
+          opacity: 1, 
+          y: 0, 
+          filter: "blur(0px) brightness(1)" 
+        },
       };
 
   return (
@@ -40,9 +44,15 @@ export function ScrollReveal({
       className={className}
       initial="hidden"
       whileInView="visible"
-      viewport={{ once: true, margin: "-80px" }}
+      // Triggers reliably when scrolling up or down
+      viewport={{ once: false, amount: 0.15, margin: "0px 0px -10% 0px" }}
       variants={variants}
-      transition={{ duration: 0.6, delay, ease: [0.16, 1, 0.3, 1] }}
+      transition={{ 
+        duration: 0.6, 
+        delay, 
+        // Smooth, premium deceleration curve
+        ease: [0.16, 1, 0.3, 1] 
+      }}
     >
       {children}
     </motion.div>
@@ -51,22 +61,13 @@ export function ScrollReveal({
 
 type ScrollRevealGroupProps = {
   children: ReactNode;
-  /** Delay between each direct child revealing, in seconds. */
   stagger?: number;
   className?: string;
 };
 
-/**
- * Wraps a set of children (e.g. a grid) and staggers each one's reveal.
- * Direct children should be ScrollReveal-unaware — this component drives
- * the same hidden/visible variants down through Framer Motion's context,
- * so a grid of plain motion-less items still staggers correctly as long
- * as each item is wrapped in a plain motion.div using the same variants
- * (see ScrollRevealItem below).
- */
 export function ScrollRevealGroup({
   children,
-  stagger = 0.08,
+  stagger = 0.08, // Quick, snappy stagger
   className,
 }: ScrollRevealGroupProps) {
   const shouldReduceMotion = useReducedMotion();
@@ -85,7 +86,7 @@ export function ScrollRevealGroup({
       className={className}
       initial="hidden"
       whileInView="visible"
-      viewport={{ once: true, margin: "-80px" }}
+      viewport={{ once: false, amount: 0.1, margin: "0px 0px -10% 0px" }}
       variants={containerVariants}
     >
       {children}
@@ -93,10 +94,9 @@ export function ScrollRevealGroup({
   );
 }
 
-/** Use inside a ScrollRevealGroup — inherits stagger timing from the parent. */
 export function ScrollRevealItem({
   children,
-  distance = 20,
+  distance = 30,
   className,
 }: {
   children: ReactNode;
@@ -106,13 +106,21 @@ export function ScrollRevealItem({
   const shouldReduceMotion = useReducedMotion();
 
   const itemVariants: Variants = shouldReduceMotion
-    ? { hidden: { opacity: 1, y: 0 }, visible: { opacity: 1, y: 0 } }
+    ? { hidden: { opacity: 0 }, visible: { opacity: 1 } }
     : {
-        hidden: { opacity: 0, y: distance },
+        hidden: { 
+          opacity: 0, 
+          y: distance, 
+          filter: "blur(4px) brightness(1.2)" 
+        },
         visible: {
           opacity: 1,
           y: 0,
-          transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] },
+          filter: "blur(0px) brightness(1)",
+          transition: { 
+            duration: 0.6, 
+            ease: [0.16, 1, 0.3, 1] 
+          },
         },
       };
 
