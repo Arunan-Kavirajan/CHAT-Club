@@ -9,6 +9,8 @@ import { Footer } from "@/components/layout/footer";
 import { GlobalBackground } from "@/components/background/global-background";
 import { MobileGate } from "@/components/mobile-gate/mobile-gate";
 import { SiteChrome } from "@/components/layout/site-chrome";
+import { AppBoot } from "@/components/loading/app-boot";
+import { BootScript } from "@/components/loading/boot-script";
 
 export const metadata: Metadata = {
   title: "CHAT — Community of Hackers and Advanced Technologists",
@@ -29,12 +31,15 @@ export default function RootLayout({
     >
       <head>
         <ThemeScript />
+        <BootScript />
       </head>
       <body className="min-h-full flex flex-col">
         <MobileGate />
         <ThemeProvider>
           <GlobalBackground />
-          <SiteChrome>{children}</SiteChrome>
+          <AppBoot>
+            <SiteChrome>{children}</SiteChrome>
+          </AppBoot>
         </ThemeProvider>
       </body>
     </html>
