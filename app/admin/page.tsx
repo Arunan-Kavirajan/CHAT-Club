@@ -38,6 +38,19 @@ export default function AdminDashboardPage() {
               Upcoming, live, and archived operations.
             </p>
           </Link>
+
+          <Link
+            href="/admin/recruitment"
+            className="group rounded-lg border border-[var(--admin-accent-soft)] bg-[var(--admin-muted)]/30 p-6 hover:border-[var(--admin-accent)] transition-colors sm:col-span-2"
+          >
+            <p className="font-mono text-xs text-[var(--admin-accent)] mb-2">03</p>
+            <h2 className="text-lg font-semibold group-hover:text-[var(--admin-accent)] transition-colors">
+              Recruitment
+            </h2>
+            <p className="mt-1 text-sm text-[var(--admin-foreground)]/60">
+              Open or close applications, set the form link.
+            </p>
+          </Link>
         </div>
       </section>
     </div>
