@@ -33,7 +33,7 @@ export function AppBoot({ children }: { children: ReactNode }) {
       </AnimatePresence>
 
       <motion.div
-        className="boot-content-wrapper"
+        className="boot-content-wrapper flex flex-col min-h-full"
         initial={false}
         animate={{ opacity: booted ? 1 : 0 }}
         transition={{ duration: 0.5, ease: "easeOut" }}

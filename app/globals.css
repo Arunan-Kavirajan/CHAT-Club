@@ -1856,3 +1856,33 @@ body {
   animation: materialize-ignite-kf 500ms ease-out forwards;
   mix-blend-mode: screen;
 }
+
+/* Home page — status ticker + photo marquee */
+@keyframes ticker-scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.ticker-track {
+  width: max-content;
+  animation: ticker-scroll 22s linear infinite;
+}
+
+@keyframes marquee-left-kf {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.marquee-left { animation: marquee-left-kf 40s linear infinite; }
+
+@keyframes marquee-right-kf {
+  from { transform: translateX(-50%); }
+  to { transform: translateX(0); }
+}
+.marquee-right { animation: marquee-right-kf 40s linear infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .ticker-track,
+  .marquee-left,
+  .marquee-right {
+    animation: none;
+  }
+}

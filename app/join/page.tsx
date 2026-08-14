@@ -18,7 +18,7 @@ export default function JoinPage() {
     <section className="mx-auto max-w-2xl px-6 py-24">
       <p className="font-mono text-sm text-accent mb-4">RECRUITMENT</p>
       <h1 className="text-4xl sm:text-5xl font-semibold tracking-tight">
-        <HoverScramble>Join CHAT</HoverScramble>
+        <HoverScramble>Join the Network</HoverScramble>
       </h1>
       <p className="mt-5 text-foreground/70 max-w-xl">
         A cybersecurity club at heart, with room to build across other tech
