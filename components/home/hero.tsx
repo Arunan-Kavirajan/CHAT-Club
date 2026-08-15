@@ -119,7 +119,7 @@ export function Hero() {
           typewriterTagline(isBig ? 600 : 320);
         }
 
-        if (isBig && isRed) {
+        if (isBig) {
           window.dispatchEvent(new CustomEvent("chat:heroBigBurst"));
         }
 

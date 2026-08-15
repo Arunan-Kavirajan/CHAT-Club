@@ -10,7 +10,7 @@ import { ScrollReveal } from "@/components/motion/scroll-reveal";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "CHAT — Community of Hackers and Advanced Technologists",
+  title: "CHAT - Community of Hackers and Advanced Technologists",
   description: "SRMIST's cybersecurity club, with room to build across the full tech stack.",
 };
 

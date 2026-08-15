@@ -179,9 +179,6 @@ function TerminalPane({ pane }: { pane: PlacedPane }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Reacts to the hero's "big burst" moments — a random subset of panes
-  // force-flash their most recent line, so the background feels like
-  // part of the same system reacting, not a separate decoration.
   useEffect(() => {
     function handleBigBurst() {
       if (Math.random() < 0.5) {
@@ -297,6 +294,20 @@ function Radar({
     [config.blipCount],
   );
 
+  // Mirrors Red Team's terminal-flash response to a hero "big burst" —
+  // briefly intensifies the whole radar's glow so the background feels
+  // like part of the same reacting system, not a separate decoration.
+  const [pulsing, setPulsing] = useState(false);
+  useEffect(() => {
+    function handleBigBurst() {
+      setPulsing(true);
+      const t = setTimeout(() => setPulsing(false), 450);
+      return () => clearTimeout(t);
+    }
+    window.addEventListener("chat:heroBigBurst", handleBigBurst);
+    return () => window.removeEventListener("chat:heroBigBurst", handleBigBurst);
+  }, []);
+
   const rings = Array.from({ length: config.ringCount }, (_, i) => {
     const scale = (i + 1) / config.ringCount;
     return (
@@ -309,7 +320,8 @@ function Radar({
           width: radius * 2 * scale,
           height: radius * 2 * scale,
           transform: "translate(-50%, -50%)",
-          border: `1px solid ${hexToRgba(accentHex, 0.12)}`,
+          border: `1px solid ${hexToRgba(accentHex, pulsing ? 0.32 : 0.12)}`,
+          transition: "border-color 450ms ease-out",
         }}
       />
     );
@@ -331,8 +343,9 @@ function Radar({
       <div
         className="absolute inset-0 rounded-full"
         style={{
-          background: `conic-gradient(from 0deg, ${hexToRgba(accentHex, 0.3)} 0deg, ${hexToRgba(accentHex, 0)} 46deg, ${hexToRgba(accentHex, 0)} 360deg)`,
+          background: `conic-gradient(from 0deg, ${hexToRgba(accentHex, pulsing ? 0.55 : 0.3)} 0deg, ${hexToRgba(accentHex, 0)} 46deg, ${hexToRgba(accentHex, 0)} 360deg)`,
           animation: `radar-rotate ${config.sweepDurationSec}s linear infinite`,
+          transition: "background 450ms ease-out",
         }}
       />
 
@@ -404,10 +417,7 @@ export function GlobalBackground() {
   if (!viewport) return null;
 
   return (
-    <div
-      className="fixed inset-0 -z-10 overflow-hidden pointer-events-none"
-      style={{ transform: "translateZ(0)" }}
-    >
+    <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
       {theme === "dark" ? (
         <RedTeamLayer viewport={viewport} />
       ) : (
