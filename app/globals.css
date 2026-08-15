@@ -1857,6 +1857,71 @@ body {
   mix-blend-mode: screen;
 }
 
+@keyframes materialize-rays-kf {
+  0% {
+    opacity: 0;
+    transform: scale(0.3) rotate(0deg);
+  }
+  50% {
+    opacity: 0.8;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(2.2) rotate(25deg);
+  }
+}
+.materialize-rays {
+  background: repeating-conic-gradient(
+    from 0deg,
+    rgba(255, 255, 255, 0.5) 0deg 3deg,
+    transparent 3deg 24deg
+  );
+  animation: materialize-rays-kf 550ms ease-out forwards;
+  mix-blend-mode: screen;
+}
+
+@keyframes materialize-heartbeat-kf {
+  0%,
+  100% {
+    transform: translate(-50%, -50%) scale(0.9);
+    opacity: 0.5;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.05);
+    opacity: 0.9;
+  }
+}
+.materialize-heartbeat {
+  animation: materialize-heartbeat-kf 900ms ease-in-out infinite;
+}
+
+@keyframes materialize-shard-shimmer-kf {
+  0% {
+    filter: hue-rotate(0deg) brightness(1.6);
+  }
+  100% {
+    filter: hue-rotate(0deg) brightness(1);
+  }
+}
+.materialize-shard-shimmer {
+  animation: materialize-shard-shimmer-kf 400ms ease-out;
+}
+
+@keyframes ambient-particle-drift {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.3;
+  }
+  50% {
+    transform: translateY(-14px);
+    opacity: 0.8;
+  }
+}
+.ambient-particle {
+  animation: ambient-particle-drift ease-in-out infinite;
+}
+
 /* Home page — status ticker + photo marquee */
 @keyframes ticker-scroll {
   from { transform: translateX(0); }

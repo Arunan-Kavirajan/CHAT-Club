@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { GalleryPageContent } from "@/components/gallery/gallery-page-content";
 
 export const metadata: Metadata = {
-  title: "Gallery — CHAT",
+  title: "Gallery",
   description: "Visual records of past CHAT operations, CTFs, and events.",
 };
 

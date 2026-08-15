@@ -9,10 +9,9 @@ export type MaterializeShard = {
   duration: number;
   delay: number;
   color: string;
+  tier: "structural" | "detail";
 };
 
-const COLS = 14;
-const ROWS = 7;
 const RED = { r: 255, g: 46, b: 70 };
 const BLUE = { r: 56, g: 189, b: 248 };
 
@@ -23,25 +22,28 @@ function lerpColor(t: number) {
   return `rgb(${r}, ${g}, ${b})`;
 }
 
-/**
- * A grid of small fragments spanning the logo's full bounding box. They
- * don't need to be individually shaped to the logo's silhouette — the
- * parent container's own clip-path (the exact logo path) does that job,
- * so any fragment landing outside the silhouette is simply invisible.
- * Much simpler than computing per-fragment polygon intersections, same
- * visual result.
- */
-export function generateMaterializeShards(boxW: number, boxH: number): MaterializeShard[] {
-  const cellW = boxW / COLS;
-  const cellH = boxH / ROWS;
+function buildGrid(
+  boxW: number,
+  boxH: number,
+  cols: number,
+  rows: number,
+  tier: "structural" | "detail",
+  idStart: number,
+  distanceRange: [number, number],
+  durationRange: [number, number],
+  delayRange: [number, number],
+): MaterializeShard[] {
+  const cellW = boxW / cols;
+  const cellH = boxH / rows;
   const shards: MaterializeShard[] = [];
-  let id = 0;
+  let id = idStart;
 
-  for (let row = 0; row < ROWS; row++) {
-    for (let col = 0; col < COLS; col++) {
+  for (let row = 0; row < rows; row++) {
+    for (let col = 0; col < cols; col++) {
       const angle = Math.random() * Math.PI * 2;
-      const distance = 260 + Math.random() * 260;
-      const colorT = col / (COLS - 1);
+      const distance =
+        distanceRange[0] + Math.random() * (distanceRange[1] - distanceRange[0]);
+      const colorT = col / (cols - 1);
 
       shards.push({
         id: id++,
@@ -51,12 +53,28 @@ export function generateMaterializeShards(boxW: number, boxH: number): Materiali
         h: cellH + 0.5,
         startDx: Math.cos(angle) * distance,
         startDy: Math.sin(angle) * distance,
-        duration: 0.7 + Math.random() * 0.6,
-        delay: Math.random() * 0.5,
+        duration:
+          durationRange[0] + Math.random() * (durationRange[1] - durationRange[0]),
+        delay: delayRange[0] + Math.random() * (delayRange[1] - delayRange[0]),
         color: lerpColor(colorT),
+        tier,
       });
     }
   }
 
   return shards;
+}
+
+/**
+ * Two-tier assembly: a coarse grid of larger "structural" pieces arrives
+ * first and fast, roughly blocking in the logo's shape — then a fine
+ * grid of small "detail" shards arrives after, filling in texture. Reads
+ * as a deliberate two-stage construction instead of one uniform swarm.
+ * The parent's clip-path (the real logo path) does all the actual
+ * shaping — any fragment outside the silhouette is simply invisible.
+ */
+export function generateMaterializeShards(boxW: number, boxH: number): MaterializeShard[] {
+  const structural = buildGrid(boxW, boxH, 7, 4, "structural", 0, [200, 380], [0.55, 0.8], [0, 0.15]);
+  const detail = buildGrid(boxW, boxH, 20, 10, "detail", 1000, [140, 320], [0.6, 1.0], [0.2, 0.55]);
+  return [...structural, ...detail];
 }

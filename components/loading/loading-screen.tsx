@@ -3,11 +3,12 @@
 import { useEffect, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { LogoMaterialize } from "./logo-materialize";
+import { AmbientParticles } from "./ambient-particles";
 
-const ASSEMBLE_MS = 1500;
+const ASSEMBLE_MS = 1700;
 const REDUCED_MS = 700;
-const IGNITE_HOLD_MS = 350;
-const REVEAL_MS = 600;
+const IGNITE_HOLD_MS = 400;
+const REVEAL_MS = 650;
 const REDUCED_REVEAL_MS = 350;
 
 export function LoadingScreen({ onComplete }: { onComplete: () => void }) {
@@ -55,9 +56,11 @@ export function LoadingScreen({ onComplete }: { onComplete: () => void }) {
       className="boot-loader-wrapper fixed inset-0 z-[500] bg-black flex flex-col items-center justify-center gap-8"
       style={revealStyle}
     >
+      <AmbientParticles reduced={shouldReduceMotion ?? undefined} />
+
       <LogoMaterialize ignite={ignite} reduced={shouldReduceMotion ?? undefined} />
 
-      <div className="flex flex-col items-center gap-2">
+      <div className="flex flex-col items-center gap-2 relative z-10">
         <p className="font-mono text-xs sm:text-sm tracking-[0.3em] text-purple-300">
           {ignite ? "SYSTEMS SYNCHRONIZED" : "ASSEMBLING SYSTEM"}
         </p>
