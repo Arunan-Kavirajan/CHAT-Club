@@ -13,9 +13,39 @@ import { AppBoot } from "@/components/loading/app-boot";
 import { BootScript } from "@/components/loading/boot-script";
 
 export const metadata: Metadata = {
-  title: "CHAT — Community of Hackers and Advanced Technologists",
+  title: "CHAT | Community of Hackers and Advanced Technologists",
   description:
-    "CHAT is SRMIST's cybersecurity club — students who hack, defend, and build, with room to explore fullstack, AI, and other advanced tech along the way.",
+    "CHAT is SRMIST's cybersecurity club - students who hack, defend, and build, with room to explore fullstack, AI, and other advanced tech along the way.",
+
+  // Link your new logo assets here
+  icons: {
+    icon: [
+      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+      { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+    ],
+    shortcut: "/favicon.ico",
+    apple: [
+      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+    ],
+  },
+  manifest: "/site.webmanifest",
+  // Configure your neon violet OG image
+  openGraph: {
+    title: "CHAT Club",
+    description: "Breach. Defend. Innovate.",
+    url: "https://chat-club-srm.vercel.app",
+    siteName: "CHAT Club",
+    images: [
+      {
+        url: "/og-image-purple.jpg", // or .png depending on your specific export
+        width: 1200,
+        height: 630,
+        alt: "CHAT Club Terminal Interface",
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
 };
 
 export default function RootLayout({
