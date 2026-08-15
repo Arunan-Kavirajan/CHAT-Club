@@ -11,15 +11,9 @@
       "src": "/android-chrome-512x512.png",
       "sizes": "512x512",
       "type": "image/png"
-    },
-    {
-      "src": "/maskable-icon-512x512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "maskable"
     }
   ],
-  "theme_color": "#0b0a10",
-  "background_color": "#0b0a10",
+  "theme_color": "#B026FF",
+  "background_color": "#0d0e15",
   "display": "standalone"
 }
