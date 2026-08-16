@@ -1646,7 +1646,8 @@ body {
   filter: drop-shadow(0 0 6px var(--accent));
 }
 
-.group:hover .card-scan-line {
+.group:hover .card-scan-line,
+.group.is-touch-active .card-scan-line {
   animation: card-scan-sweep 700ms ease-out;
 }
 
@@ -1676,7 +1677,8 @@ body {
   background: var(--accent);
 }
 
-.group:hover .card-tint-flash {
+.group:hover .card-tint-flash,
+.group.is-touch-active .card-tint-flash {
   animation: card-tint-flash-kf 500ms steps(3, jump-none);
 }
 
@@ -1706,7 +1708,8 @@ body {
   mix-blend-mode: overlay;
 }
 
-.group:hover .card-glitch-slice {
+.group:hover .card-glitch-slice,
+.group.is-touch-active .card-glitch-slice {
   animation: card-glitch-slice-kf 600ms steps(4, jump-none);
 }
 
@@ -1759,7 +1762,8 @@ body {
     );
 }
 
-.group:hover .card-grid-overlay {
+.group:hover .card-grid-overlay,
+.group.is-touch-active .card-grid-overlay {
   animation: card-grid-flicker-kf 700ms steps(5, jump-none);
 }
 
@@ -1794,7 +1798,8 @@ body {
   transform: translate(-50%, -50%) scale(0.5);
 }
 
-.group:hover .card-ping {
+.group:hover .card-ping,
+.group.is-touch-active .card-ping {
   animation: card-ping-kf 700ms ease-out;
 }
 

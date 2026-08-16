@@ -1,7 +1,11 @@
+"use client";
+
+import { useState } from "react";
 import type { AdminEvent } from "@/lib/event-types";
 import { formatDossierDate } from "@/lib/gallery-format";
-import { CyberCardCorners } from "@/components/ui/cyber-card-corners";
 import { CardScanEffect } from "@/components/ui/card-scan-effect";
+import { CyberCardCorners } from "@/components/ui/cyber-card-corners";
+import { useIsTouchDevice } from "@/lib/hooks/use-touch-hover";
 
 export function DossierCard({
   event,
@@ -10,10 +14,21 @@ export function DossierCard({
   event: AdminEvent;
   onOpen: () => void;
 }) {
+  const [touchActive, setTouchActive] = useState(false);
+  const isTouch = useIsTouchDevice();
+
+  function handleClick() {
+    if (isTouch) {
+      setTouchActive(true);
+      setTimeout(() => setTouchActive(false), 500);
+    }
+    onOpen();
+  }
+
   return (
     <button
-      onClick={onOpen}
-      className="cyber-card-hover group relative text-left w-full rounded-xl border border-foreground/15 bg-muted overflow-hidden cursor-pointer"
+      onClick={handleClick}
+      className={`cyber-card-hover group relative text-left w-full rounded-xl border border-foreground/15 bg-muted overflow-hidden cursor-pointer ${touchActive ? "is-touch-active" : ""}`}
     >
       <div className="relative h-56 overflow-hidden bg-muted">
         {event.thumbnailUrl ? (

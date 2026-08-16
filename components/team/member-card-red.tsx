@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { FaLinkedin } from "react-icons/fa";
 import type { AdminMember } from "@/lib/team-types";
+import { useIsTouchDevice } from "@/lib/hooks/use-touch-hover";
 
 const SCRAMBLE_CHARS =
   "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!<>-_/[]{}=+*^?#";
@@ -18,6 +19,8 @@ export function MemberCardRed({ member }: { member: AdminMember }) {
   const [classPosDisplay, setClassPosDisplay] = useState(IDLE_CLASS_POS);
   const scrambleIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const leaveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
+  const isTouch = useIsTouchDevice();
 
   const isHovered = phase === "hovering";
   const realClassPos = `CLASS: ${member.deptClass || "N/A"} // POS: ${member.position || "N/A"}`;
@@ -31,7 +34,7 @@ export function MemberCardRed({ member }: { member: AdminMember }) {
     }
 
     const length = realClassPos.length;
-    const totalTicks = 13; // slower than before, per feedback
+    const totalTicks = 13;
     let tick = 0;
 
     scrambleIntervalRef.current = setInterval(() => {
@@ -58,36 +61,58 @@ export function MemberCardRed({ member }: { member: AdminMember }) {
     };
   }, [isHovered, realClassPos]);
 
-  function handleMouseEnter() {
-    if (leaveTimeoutRef.current) clearTimeout(leaveTimeoutRef.current);
+  function openCard() {
     setSliceTopA(15 + Math.random() * 35);
     setSliceTopB(50 + Math.random() * 30);
+    if (leaveTimeoutRef.current) clearTimeout(leaveTimeoutRef.current);
     setPhase("hovering");
   }
 
-  function handleMouseLeave() {
+  function closeCard() {
     setPhase("leaving");
     leaveTimeoutRef.current = setTimeout(() => setPhase("idle"), LEAVE_DURATION_MS);
   }
 
-  useEffect(() => {
-    return () => {
-      if (leaveTimeoutRef.current) clearTimeout(leaveTimeoutRef.current);
-    };
-  }, []);
+  function handleMouseEnter() {
+    if (isTouch) return;
+    openCard();
+  }
 
-  const stackClass =
-    phase === "hovering" ? "card-hover" : phase === "leaving" ? "card-leaving" : "";
+  function handleMouseLeave() {
+    if (isTouch) return;
+    closeCard();
+  }
+
+  function handleCardTap() {
+    if (!isTouch) return;
+    if (phase === "hovering") {
+      closeCard();
+    } else {
+      openCard();
+    }
+  }
+
+  useEffect(() => {
+    if (!isTouch || phase !== "hovering") return;
+    function handleOutside(e: PointerEvent) {
+      if (cardRef.current && !cardRef.current.contains(e.target as Node)) {
+        closeCard();
+      }
+    }
+    document.addEventListener("pointerdown", handleOutside);
+    return () => document.removeEventListener("pointerdown", handleOutside);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isTouch, phase]);
 
   return (
     <div
+      ref={cardRef}
       className="w-72 h-[420px] rounded-xl border border-red-950 bg-black shadow-lg shadow-red-950/40 overflow-hidden flex flex-col cursor-default"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
+      onClick={handleCardTap}
     >
-      {/* Top 70% — photo + cover layers */}
       <div className="relative h-[70%] overflow-hidden">
-        {/* Layer 1 (bottom): real photo */}
         <div className="absolute inset-0 bg-zinc-900">
           {member.photoUrl && (
             // eslint-disable-next-line @next/next/no-img-element
@@ -95,8 +120,7 @@ export function MemberCardRed({ member }: { member: AdminMember }) {
           )}
         </div>
 
-        {/* Layer 2 (middle): theme cover — glitch reveal on hover, glitch settle on leave */}
-        <div className={`card-cover-stack absolute inset-0 ${stackClass}`}>
+        <div className={`card-cover-stack absolute inset-0 ${isHovered ? "card-hover" : phase === "leaving" ? "card-leaving" : ""}`}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/team/red-team-cover.png"
@@ -150,7 +174,6 @@ export function MemberCardRed({ member }: { member: AdminMember }) {
         </div>
       </div>
 
-      {/* Bottom 30% — info panel */}
       <div className="h-[30%] border-t border-red-950 p-4 flex flex-col justify-center gap-2 relative overflow-hidden">
         {member.linkedin && (
           <a

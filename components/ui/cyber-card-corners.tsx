@@ -1,12 +1,6 @@
-/**
- * Four corner brackets that fade + snap in on hover — the shared "extra"
- * layered on top of the glow, reused identically by Events and Gallery
- * cards. Must be rendered inside an ancestor with `relative` and `group`
- * classes for positioning and hover-triggering to work.
- */
 export function CyberCardCorners() {
   const base =
-    "absolute w-3 h-3 opacity-0 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-0 group-hover:translate-y-0 pointer-events-none";
+    "absolute w-3 h-3 opacity-0 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-0 group-hover:translate-y-0 group-[.is-touch-active]:opacity-100 group-[.is-touch-active]:translate-x-0 group-[.is-touch-active]:translate-y-0 pointer-events-none";
 
   return (
     <>

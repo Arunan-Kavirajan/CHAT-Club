@@ -1,8 +1,12 @@
+"use client";
+
+import { useState } from "react";
 import type { AdminEvent } from "@/lib/event-types";
 import type { EventStatus } from "@/lib/event-status";
-import { CyberCardCorners } from "@/components/ui/cyber-card-corners";
-import { CardScanEffect } from "@/components/ui/card-scan-effect";
 import { formatEventDate, formatEventTime } from "@/lib/event-status";
+import { CardScanEffect } from "@/components/ui/card-scan-effect";
+import { CyberCardCorners } from "@/components/ui/cyber-card-corners";
+import { useIsTouchDevice } from "@/lib/hooks/use-touch-hover";
 
 const STATUS_LABEL: Record<EventStatus, string> = {
   live: "LIVE",
@@ -19,10 +23,21 @@ export function EventGridCard({
   status: EventStatus;
   onOpen: () => void;
 }) {
+  const [touchActive, setTouchActive] = useState(false);
+  const isTouch = useIsTouchDevice();
+
+  function handleClick() {
+    if (isTouch) {
+      setTouchActive(true);
+      setTimeout(() => setTouchActive(false), 500);
+    }
+    onOpen();
+  }
+
   return (
     <button
-      onClick={onOpen}
-      className="cyber-card-hover group relative text-left w-full rounded-xl border border-foreground/10 bg-muted overflow-hidden flex flex-col"
+      onClick={handleClick}
+      className={`cyber-card-hover group relative text-left w-full rounded-xl border border-foreground/10 bg-muted overflow-hidden flex flex-col ${touchActive ? "is-touch-active" : ""}`}
     >
       <div className="relative h-[200px] w-full overflow-hidden bg-muted shrink-0">
         {event.thumbnailUrl ? (
