@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { HoverScramble } from "@/components/motion/hover-scramble";
+import { MobileNav } from "./mobile-nav";
 
 const NAV_LINKS = [
   { href: "/", label: "Home" },
@@ -30,7 +31,7 @@ export function Navbar() {
           ))}
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3 sm:gap-4">
           <ThemeToggle />
           <Link
             href="/join"
@@ -38,6 +39,7 @@ export function Navbar() {
           >
             <HoverScramble>Join</HoverScramble>
           </Link>
+          <MobileNav />
         </div>
       </nav>
     </header>

@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { useReducedMotion } from "framer-motion";
 import { useTheme } from "@/components/theme/theme-context";
+import { useIsTouchDevice } from "@/lib/hooks/use-touch-hover";
 
 const SCRAMBLE_CHARS =
   "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!<>-_/[]{}=+*^?#";
@@ -29,6 +30,7 @@ type HoverScrambleProps = {
 export function HoverScramble({ children, className }: HoverScrambleProps) {
   const { theme } = useTheme();
   const shouldReduceMotion = useReducedMotion();
+  const isTouch = useIsTouchDevice();
   const original = children;
 
   const [scrambleDisplay, setScrambleDisplay] = useState(original);
@@ -120,6 +122,11 @@ export function HoverScramble({ children, className }: HoverScrambleProps) {
     }
   }
 
+  function handleTouchStart() {
+    if (!isTouch) return;
+    handleMouseEnter();
+  }
+
   // Slow fade to the accent color while animating, fading back once done.
   const colorStyle: CSSProperties = {
     color: highlighted ? "var(--accent)" : "inherit",
@@ -128,7 +135,7 @@ export function HoverScramble({ children, className }: HoverScrambleProps) {
 
   if (theme === "dark") {
     return (
-      <span className={className} style={colorStyle} onMouseEnter={handleMouseEnter}>
+      <span className={className} style={colorStyle} onMouseEnter={handleMouseEnter} onTouchStart={handleTouchStart}>
         {scrambleDisplay}
       </span>
     );
@@ -139,7 +146,7 @@ export function HoverScramble({ children, className }: HoverScrambleProps) {
   const chars = original.split("");
 
   return (
-    <span className={className} style={colorStyle} onMouseEnter={handleMouseEnter}>
+    <span className={className} style={colorStyle} onMouseEnter={handleMouseEnter} onTouchStart={handleTouchStart}>
       {chars.map((ch, i) => (
         <span key={i}>
           {i === typedCount && showCursor && (
