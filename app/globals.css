@@ -42,6 +42,10 @@
   --admin-accent-soft: rgba(139, 92, 246, 0.18);
 }
 
+[data-mobile-bypass="1"] .mobile-gate-root {
+  display: none !important;
+}
+
 .gate-logo-pulse {
   animation: gate-pulse 3.5s ease-in-out infinite;
 }

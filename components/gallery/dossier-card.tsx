@@ -6,6 +6,7 @@ import { formatDossierDate } from "@/lib/gallery-format";
 import { CardScanEffect } from "@/components/ui/card-scan-effect";
 import { CyberCardCorners } from "@/components/ui/cyber-card-corners";
 import { useIsTouchDevice } from "@/lib/hooks/use-touch-hover";
+import { toDisplayUrl } from "@/lib/image-cdn";
 
 export function DossierCard({
   event,
@@ -34,7 +35,7 @@ export function DossierCard({
         {event.thumbnailUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
-            src={event.thumbnailUrl}
+            src={toDisplayUrl(event.thumbnailUrl)}
             alt=""
             className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
           />

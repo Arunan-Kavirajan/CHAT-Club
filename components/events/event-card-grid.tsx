@@ -7,6 +7,7 @@ import { formatEventDate, formatEventTime } from "@/lib/event-status";
 import { CardScanEffect } from "@/components/ui/card-scan-effect";
 import { CyberCardCorners } from "@/components/ui/cyber-card-corners";
 import { useIsTouchDevice } from "@/lib/hooks/use-touch-hover";
+import { toDisplayUrl } from "@/lib/image-cdn";
 
 const STATUS_LABEL: Record<EventStatus, string> = {
   live: "LIVE",
@@ -43,7 +44,7 @@ export function EventGridCard({
         {event.thumbnailUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
-            src={event.thumbnailUrl}
+            src={toDisplayUrl(event.thumbnailUrl)}
             alt=""
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
           />

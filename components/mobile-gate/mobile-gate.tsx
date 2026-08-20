@@ -4,21 +4,34 @@ import { useEffect } from "react";
 import { ChatLogoShape } from "@/components/home/chat-logo-shape";
 
 const MOBILE_BREAKPOINT = "(max-width: 767px)";
+const BYPASS_KEY = "chat-mobile-bypass";
+const ACCESS_TOKEN = process.env.NEXT_PUBLIC_MOBILE_BYPASS_KEY;
 
-/**
- * Blocks mobile/tablet viewports entirely while mobile optimization is
- * still in progress. Beyond just visually covering the page, this also
- * locks html/body scroll outright while active — a plain CSS overlay
- * alone still leaves the real page scrollable underneath it, and fast
- * scroll momentum on mobile browsers can visibly lag a `position: fixed`
- * layer, letting the real content peek through underneath.
- */
 export function MobileGate() {
+  // One-time bypass link: yoursite.com/?access=<your secret token>
+  // Sets a permanent flag on this browser so future visits skip the
+  // gate entirely, without needing the link again.
+  useEffect(() => {
+    if (!ACCESS_TOKEN) return;
+    const params = new URLSearchParams(window.location.search);
+    const provided = params.get("access");
+    if (provided === ACCESS_TOKEN) {
+      localStorage.setItem(BYPASS_KEY, "1");
+      document.documentElement.setAttribute("data-mobile-bypass", "1");
+      params.delete("access");
+      const query = params.toString();
+      const newUrl =
+        window.location.pathname + (query ? `?${query}` : "") + window.location.hash;
+      window.history.replaceState({}, "", newUrl);
+    }
+  }, []);
+
   useEffect(() => {
     const mql = window.matchMedia(MOBILE_BREAKPOINT);
 
     function applyLock(isMobile: boolean) {
-      if (isMobile) {
+      const bypassed = document.documentElement.getAttribute("data-mobile-bypass") === "1";
+      if (isMobile && !bypassed) {
         document.documentElement.style.overflow = "hidden";
         document.body.style.overflow = "hidden";
         document.body.style.touchAction = "none";
@@ -45,7 +58,7 @@ export function MobileGate() {
 
   return (
     <div
-      className="admin-scope fixed inset-0 z-[9999] flex md:hidden flex-col items-center justify-center px-8 text-center"
+      className="mobile-gate-root admin-scope fixed inset-0 z-[9999] flex md:hidden flex-col items-center justify-center px-8 text-center"
       style={{
         backgroundColor: "var(--admin-bg)",
         color: "var(--admin-foreground)",

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { FaLinkedin } from "react-icons/fa";
 import type { AdminMember } from "@/lib/team-types";
 import { useIsTouchDevice } from "@/lib/hooks/use-touch-hover";
+import { toDisplayUrl } from "@/lib/image-cdn";
 
 const SCRAMBLE_CHARS =
   "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!<>-_/[]{}=+*^?#";
@@ -116,7 +117,7 @@ export function MemberCardRed({ member }: { member: AdminMember }) {
         <div className="absolute inset-0 bg-zinc-900">
           {member.photoUrl && (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={member.photoUrl} alt="" className="w-full h-full object-cover" />
+            <img src={toDisplayUrl(member.photoUrl)} alt="" className="w-full h-full object-cover" />
           )}
         </div>
 

@@ -4,10 +4,9 @@ import { GeistMono } from "geist/font/mono";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme/theme-context";
 import { ThemeScript } from "@/components/theme/theme-script";
-import { Navbar } from "@/components/layout/navbar";
-import { Footer } from "@/components/layout/footer";
 import { GlobalBackground } from "@/components/background/global-background";
 import { MobileGate } from "@/components/mobile-gate/mobile-gate";
+import { MobileBypassScript } from "@/components/mobile-gate/mobile-bypass-script";
 import { SiteChrome } from "@/components/layout/site-chrome";
 import { AppBoot } from "@/components/loading/app-boot";
 import { BootScript } from "@/components/loading/boot-script";
@@ -17,7 +16,6 @@ export const metadata: Metadata = {
   description:
     "CHAT is SRMIST's cybersecurity club - students who hack, defend, and build, with room to explore fullstack, AI, and other advanced tech along the way.",
 
-  // Link your new logo assets here
   icons: {
     icon: [
       { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
@@ -29,7 +27,6 @@ export const metadata: Metadata = {
     ],
   },
   manifest: "/site.webmanifest",
-  // Configure your neon violet OG image
   openGraph: {
     title: "CHAT Club",
     description: "Breach. Defend. Innovate.",
@@ -37,7 +34,7 @@ export const metadata: Metadata = {
     siteName: "CHAT Club",
     images: [
       {
-        url: "/og-image-purple.jpg", // or .png depending on your specific export
+        url: "/og-image-purple.jpg",
         width: 1200,
         height: 630,
         alt: "CHAT Club Terminal Interface",
@@ -62,6 +59,9 @@ export default function RootLayout({
       <head>
         <ThemeScript />
         <BootScript />
+        <MobileBypassScript />
+        <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+        <link rel="preconnect" href="https://raw.githubusercontent.com" />
       </head>
       <body className="min-h-full flex flex-col">
         <MobileGate />

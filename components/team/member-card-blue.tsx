@@ -3,6 +3,7 @@
 import { useRef, useState } from "react";
 import { FaLinkedin } from "react-icons/fa";
 import type { AdminMember } from "@/lib/team-types";
+import { toDisplayUrl } from "@/lib/image-cdn";
 
 type Phase = "idle" | "hovering" | "leaving";
 const LEAVE_DURATION_MS = 400;
@@ -38,7 +39,7 @@ export function MemberCardBlue({ member }: { member: AdminMember }) {
         <div className="absolute inset-0 bg-slate-900">
           {member.photoUrl && (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={member.photoUrl} alt="" className="w-full h-full object-cover" />
+            <img src={toDisplayUrl(member.photoUrl)} alt="" className="w-full h-full object-cover" />
           )}
         </div>
 

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import type { AdminEvent } from "@/lib/event-types";
 import { formatDossierDate } from "@/lib/gallery-format";
+import { toDisplayUrl } from "@/lib/image-cdn";
 
 export function AlbumLightbox({
   album,
@@ -111,7 +112,7 @@ export function AlbumLightbox({
                   }`}
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={url} alt="" className="w-full h-full object-cover" />
+                  <img src={toDisplayUrl(url)} alt="" className="w-full h-full object-cover" />
                 </button>
               ))}
             </div>

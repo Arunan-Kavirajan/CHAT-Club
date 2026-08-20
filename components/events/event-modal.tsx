@@ -3,6 +3,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import type { AdminEvent } from "@/lib/event-types";
 import { formatEventDate } from "@/lib/event-status";
+import { toDisplayUrl } from "@/lib/image-cdn";
 
 export function EventModal({
   event,
@@ -33,7 +34,7 @@ export function EventModal({
               {event.thumbnailUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
-                  src={event.thumbnailUrl}
+                  src={toDisplayUrl(event.thumbnailUrl)}
                   alt=""
                   className="w-full h-full object-cover"
                 />
